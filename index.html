@@ -1249,12 +1249,13 @@
     // ============================================================
     // 状态
     // ============================================================
-    let playersData = []; // 存储所有玩家对象的数组，每条记录包含 username 和对应的 key
+    let playersData = [];
     let currentPage = 1;
     let pageSize = 10;
     let filteredPlayers = [];
 
     const USERNAME_KEY = 'horror_buddy_username';
+    let isSubmitting = false;
 
     // ============================================================
     // 工具
@@ -1283,7 +1284,6 @@
         return localStorage.getItem(USERNAME_KEY) || '';
     }
 
-    // 编码用户名作为 Firebase key（处理特殊字符）
     function encodeUserKey(username) {
         return encodeURIComponent(username);
     }
@@ -1517,22 +1517,23 @@
         if (!firebaseInitialized) return;
         playersRef.on('value', snapshot => {
             const data = snapshot.val() || {};
-            // 将对象转换为数组，每条记录包含 key 和所有字段
             const playersArray = Object.entries(data).map(([key, value]) => {
-                // 解码 key 得到用户名
                 const username = decodeURIComponent(key);
                 return { ...value, username, _key: key };
             });
             playersData = playersArray;
             applyFiltersAndRender();
-            // 检查重新登记区块
-            const currentUser = getCurrentUsername();
-            if (currentUser && playersArray.some(p => p.username === currentUser)) {
-                resetSection.classList.add('show');
-            } else {
-                resetSection.classList.remove('show');
-            }
+            checkResetSection();
         });
+    }
+
+    function checkResetSection() {
+        const currentUser = getCurrentUsername();
+        if (currentUser && playersData.some(p => p.username === currentUser)) {
+            resetSection.classList.add('show');
+        } else {
+            resetSection.classList.remove('show');
+        }
     }
 
     // ---------- 过滤、分页、渲染 ----------
@@ -1623,9 +1624,8 @@
                 <div class="info-row"><span class="info-label">游戏时长</span><span class="info-value">${escapeHtml(p.duration||'—')}</span></div>
             `;
 
-            // 仅当记录的用户名与当前用户匹配时，才显示删除按钮
-            const isOwn = (p.username === currentUser);
-            const deleteBtn = isOwn ? `<button class="btn-sm btn-danger" data-action="delete" data-username="${p.username}"><i class="fas fa-trash"></i> 删除</button>` : '';
+            // 所有记录都显示删除按钮，点击后验证用户名
+            const deleteBtn = `<button class="btn-sm btn-danger" data-action="delete" data-username="${p.username}"><i class="fas fa-trash"></i> 删除</button>`;
 
             html += `
                 <tr>
@@ -1663,21 +1663,26 @@
             });
         });
 
-        // 删除事件
+        // 删除事件 - 所有记录都显示删除按钮，点击后验证用户名
         tableBody.querySelectorAll('[data-action="delete"]').forEach(btn => {
             btn.addEventListener('click', function() {
                 const username = this.dataset.username;
                 if (!username) return;
-                const currentUser = getCurrentUsername();
-                if (username !== currentUser) {
-                    showToast('无权删除他人记录', 'error');
+                if (!confirm(`确认删除「${username}」的记录吗？`)) return;
+                // 提示输入用户名验证
+                const inputName = prompt(`请输入要删除的记录的用户名「${username}」以确认：`);
+                if (inputName === null) return;
+                if (inputName.trim() !== username) {
+                    showToast('用户名不匹配，删除失败', 'error');
                     return;
                 }
-                if (!confirm(`确认删除「${username}」的记录吗？`)) return;
                 const userKey = encodeUserKey(username);
                 playersRef.child(userKey).remove().then(() => {
-                    localStorage.removeItem(USERNAME_KEY);
-                    resetSection.classList.remove('show');
+                    const currentUser = getCurrentUsername();
+                    if (currentUser === username) {
+                        localStorage.removeItem(USERNAME_KEY);
+                        resetSection.classList.remove('show');
+                    }
                     showToast(`已删除 ${username}`, 'info');
                 }).catch(err => {
                     showToast('删除失败: ' + err.message, 'error');
@@ -1811,29 +1816,41 @@
     // ---------- 表单提交 ----------
     form.addEventListener('submit', async function(e) {
         e.preventDefault();
+        if (isSubmitting) return;
+        isSubmitting = true;
 
         if (!firebaseInitialized) {
             showToast('Firebase 未初始化，请检查配置', 'error');
+            isSubmitting = false;
             return;
         }
 
         const username = usernameInput.value.trim();
-        if (!username) { showToast('请输入用户名', 'error'); usernameInput.focus(); return; }
+        if (!username) { showToast('请输入用户名', 'error'); usernameInput.focus(); isSubmitting = false; return; }
+
+        // 检查本地存储是否已有用户名且与当前输入不同
+        const savedUser = getCurrentUsername();
+        if (savedUser && savedUser !== username) {
+            showToast(`您已登记为「${savedUser}」，请使用该用户名或点击「重新登记」更换用户`, 'error');
+            isSubmitting = false;
+            return;
+        }
 
         let mainGame = mainGameSelect.value;
         if (mainGame === '__manual__') {
             mainGame = mainManual.value.trim();
-            if (!mainGame) { showToast('请手动输入主要游戏名称', 'error'); mainManual.focus(); return; }
+            if (!mainGame) { showToast('请手动输入主要游戏名称', 'error'); mainManual.focus(); isSubmitting = false; return; }
         } else if (!mainGame) {
-            showToast('请选择或输入主要游戏', 'error'); mainGameSelect.focus(); return;
+            showToast('请选择或输入主要游戏', 'error'); mainGameSelect.focus(); isSubmitting = false; return;
         }
 
-        // 检查用户名是否已存在（直接读取数据库，避免缓存问题）
+        // 检查数据库是否已存在该用户名
         const userKey = encodeUserKey(username);
         const userRef = playersRef.child(userKey);
         const snapshot = await userRef.once('value');
         if (snapshot.exists()) {
             showToast(`用户名 "${username}" 已被登记，请勿重复提交`, 'error');
+            isSubmitting = false;
             return;
         }
 
@@ -1846,6 +1863,7 @@
             if (!regex.test(onlineTimeCustomVal)) {
                 showToast('自定义时间格式错误，请使用 12:00-18:00 格式', 'error');
                 onlineTimeCustom.focus();
+                isSubmitting = false;
                 return;
             }
             const parts = onlineTimeCustomVal.split('-');
@@ -1856,6 +1874,7 @@
             if (h1 > 24 || m1 > 59 || h2 > 24 || m2 > 59) {
                 showToast('时间格式错误：小时不能超过24，分钟不能超过59', 'error');
                 onlineTimeCustom.focus();
+                isSubmitting = false;
                 return;
             }
         }
@@ -1874,14 +1893,15 @@
             expectedLevels: expectedLevels.slice(),
         };
 
-        // 写入数据库（使用用户名作为key）
         userRef.set(data).then(() => {
             localStorage.setItem(USERNAME_KEY, username);
             showToast(`🎉 ${username} 登记成功`, 'success');
             resetFormFields();
             resetSection.classList.add('show');
+            isSubmitting = false;
         }).catch(err => {
             showToast('保存失败: ' + err.message, 'error');
+            isSubmitting = false;
         });
     });
 
@@ -1931,7 +1951,6 @@
         recommendGamesArray = [];
         renderTags(recommendTagContainer, recommendGamesArray, recommendGamesHidden, 3);
         updateRecommendHint();
-        // 确保预设行显示
         [mainPresetRow, alsoPresetRow, wantPresetRow, recommendPresetRow].forEach(row => row.style.display = 'flex');
         [mainManualRow, alsoManualRow, wantManualRow, recommendManualRow].forEach(row => row.classList.remove('show'));
 
