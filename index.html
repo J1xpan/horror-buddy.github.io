@@ -221,7 +221,35 @@
         }
         .manual-row .btn-cancel:active { transform: scale(0.96); }
 
-        /* ===== 水平 + 期望水平 同行 ===== */
+        /* ===== 标签容器（显示已选游戏） ===== */
+        .tag-container {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 6px;
+            margin-top: 4px;
+            min-height: 32px;
+        }
+        .tag-item {
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            background: rgba(0,122,255,0.15);
+            border-radius: 30px;
+            padding: 4px 12px 4px 14px;
+            font-size: 0.85rem;
+            color: #66b0ff;
+            border: 0.5px solid rgba(0,122,255,0.15);
+        }
+        .tag-item i {
+            cursor: pointer;
+            font-size: 0.75rem;
+            color: #8e8e93;
+            padding: 2px;
+            touch-action: manipulation;
+        }
+        .tag-item i:active { color: #ff453a; }
+
+        /* ===== 水平 + 期望水平 ===== */
         .level-row {
             display: grid;
             grid-template-columns: 1fr 1fr;
@@ -261,13 +289,17 @@
             box-shadow: 0 2px 12px rgba(0,122,255,0.25);
         }
 
-        /* ===== 在线时间自定义 ===== */
+        /* ===== 在线时间自定义（掩码常驻） ===== */
         .online-custom {
             margin-top: 4px;
             display: none;
         }
         .online-custom.show { display: block; }
-        .online-custom input {
+        .online-custom .mask-wrapper {
+            position: relative;
+            width: 100%;
+        }
+        .online-custom .mask-wrapper input {
             width: 100%;
             background: rgba(255,255,255,0.06);
             border: 0.5px solid rgba(255,255,255,0.08);
@@ -278,15 +310,31 @@
             outline: none;
             font-family: inherit;
             letter-spacing: 1px;
+            caret-color: #007aff;
         }
-        .online-custom input:focus {
+        .online-custom .mask-wrapper input:focus {
             border-color: #007aff;
             background: rgba(255,255,255,0.08);
             box-shadow: 0 0 0 3px rgba(0,122,255,0.12);
         }
-        .online-custom input.error {
+        .online-custom .mask-wrapper input.error {
             border-color: #ff453a;
             box-shadow: 0 0 0 3px rgba(255,69,58,0.2);
+        }
+        .online-custom .mask-placeholder {
+            position: absolute;
+            left: 14px;
+            top: 50%;
+            transform: translateY(-50%);
+            color: #636366;
+            font-size: 16px;
+            pointer-events: none;
+            letter-spacing: 1px;
+            font-family: monospace;
+            opacity: 0.5;
+        }
+        .online-custom .mask-placeholder.hidden {
+            opacity: 0;
         }
         .online-custom span {
             font-size: 0.7rem;
@@ -333,6 +381,11 @@
             background: rgba(255,255,255,0.08);
             color: #aeaeb2;
             border: 0.5px solid rgba(255,255,255,0.06);
+        }
+        .btn-danger {
+            background: rgba(255,69,58,0.15);
+            color: #ff453a;
+            border: 0.5px solid rgba(255,69,58,0.15);
         }
         #editHint {
             font-size: 0.8rem;
@@ -669,7 +722,7 @@
             margin-top: 8px;
         }
 
-        /* ===== 大屏适配 ===== */
+        /* ===== 响应式 ===== */
         @media (min-width: 640px) {
             body { padding: 24px 20px; }
             .card { padding: 24px 28px; border-radius: 24px; }
@@ -686,27 +739,14 @@
                 white-space: nowrap;
             }
             .toast.show { transform: translateX(-50%) translateY(0); }
-            .level-row {
-                grid-template-columns: 1fr 1fr;
-            }
-            .list-controls {
-                flex-wrap: nowrap;
-            }
+            .level-row { grid-template-columns: 1fr 1fr; }
+            .list-controls { flex-wrap: nowrap; }
         }
         @media (max-width: 639px) {
-            .form-grid {
-                grid-template-columns: 1fr;
-            }
-            .level-row {
-                grid-template-columns: 1fr;
-                gap: 14px;
-            }
-            .level-group, .expect-level-group {
-                grid-column: auto;
-            }
-            .preset-row {
-                flex-wrap: nowrap;
-            }
+            .form-grid { grid-template-columns: 1fr; }
+            .level-row { grid-template-columns: 1fr; gap: 14px; }
+            .level-group, .expect-level-group { grid-column: auto; }
+            .preset-row { flex-wrap: nowrap; }
         }
     </style>
 </head>
@@ -724,8 +764,8 @@
         </div>
     </header>
 
-    <!-- ===== 登记卡片 ===== -->
-    <section class="card" id="formCard" style="display:block;">
+    <!-- ===== 登记卡片（始终可见） ===== -->
+    <section class="card" id="formCard">
         <div class="card-title"><i class="fas fa-pen-fancy"></i> <span id="formTitle">📝 登记你的游戏信息</span></div>
         <form id="playerForm" autocomplete="off">
             <div class="form-grid">
@@ -766,7 +806,10 @@
                         <option value="自定义">自定义</option>
                     </select>
                     <div class="online-custom" id="onlineCustomWrap">
-                        <input type="text" id="onlineTimeCustom" placeholder="__:__-__:__" inputmode="numeric" />
+                        <div class="mask-wrapper">
+                            <input type="text" id="onlineTimeCustom" inputmode="numeric" />
+                            <span class="mask-placeholder" id="maskPlaceholder">__:__-__:__</span>
+                        </div>
                         <span>格式：开始时间-结束时间，如 12:00-18:00（24小时制）</span>
                     </div>
                 </div>
@@ -863,6 +906,7 @@
                         <input type="text" id="alsoManual" placeholder="请输入也玩的游戏名称" />
                         <button type="button" class="btn-cancel" id="alsoManualCancel">取消</button>
                     </div>
+                    <div class="tag-container" id="alsoTagContainer"></div>
                     <input type="hidden" id="alsoGamesHidden" value="[]" />
                 </div>
 
@@ -898,6 +942,7 @@
                         <input type="text" id="wantManual" placeholder="请输入你想玩的游戏名称" />
                         <button type="button" class="btn-cancel" id="wantManualCancel">取消</button>
                     </div>
+                    <div class="tag-container" id="wantTagContainer"></div>
                     <input type="hidden" id="wantGamesHidden" value="[]" />
                 </div>
 
@@ -934,13 +979,15 @@
                         <input type="text" id="recommendManual" placeholder="请输入推荐游戏名称" />
                         <button type="button" class="btn-cancel" id="recommendManualCancel">取消</button>
                     </div>
+                    <div class="tag-container" id="recommendTagContainer"></div>
                     <input type="hidden" id="recommendGamesHidden" value="[]" />
                 </div>
 
-                <!-- 按钮 -->
+                <!-- 按钮区：新增“重新登记” -->
                 <div class="form-actions">
                     <button type="submit" class="btn btn-primary" id="submitBtn"><i class="fas fa-save"></i> 登记</button>
                     <button type="reset" class="btn btn-secondary" id="resetBtn"><i class="fas fa-undo"></i> 重置</button>
+                    <button type="button" class="btn btn-danger" id="resetRegistrationBtn"><i class="fas fa-redo"></i> 重新登记</button>
                     <span id="editHint"><i class="fas fa-pen"></i> 正在编辑... <a href="#" id="cancelEdit">取消</a></span>
                 </div>
             </div>
@@ -1021,7 +1068,7 @@
 
 <script>
     // ============================================================
-    // Firebase 配置 (您的项目配置，已包含 databaseURL)
+    // Firebase 配置 (请替换成您自己的配置)
     // ============================================================
     const firebaseConfig = {
         apiKey: "AIzaSyDVYlQZHk2H7q6bt6yuaynH9pMorbgsOg4",
@@ -1033,12 +1080,11 @@
         appId: "1:773248848063:web:c7d18a1a6ed08bfb38b60a"
     };
 
-    // 检查配置是否完整
+    // 检查配置
     if (!firebaseConfig.databaseURL || firebaseConfig.databaseURL === "") {
         alert("⚠️ 请检查 Firebase 配置，databaseURL 不能为空！");
     }
 
-    // 初始化 Firebase
     let firebaseInitialized = false;
     try {
         firebase.initializeApp(firebaseConfig);
@@ -1059,6 +1105,7 @@
     const onlineTimeType = document.getElementById('onlineTimeType');
     const onlineTimeCustom = document.getElementById('onlineTimeCustom');
     const onlineCustomWrap = document.getElementById('onlineCustomWrap');
+    const maskPlaceholder = document.getElementById('maskPlaceholder');
     const durationSelect = document.getElementById('duration');
 
     // 主要游戏
@@ -1076,6 +1123,7 @@
     const alsoManual = document.getElementById('alsoManual');
     const alsoPresetAdd = document.getElementById('alsoPresetAdd');
     const alsoManualCancel = document.getElementById('alsoManualCancel');
+    const alsoTagContainer = document.getElementById('alsoTagContainer');
     const alsoGamesHidden = document.getElementById('alsoGamesHidden');
     let alsoGamesArray = [];
 
@@ -1086,6 +1134,7 @@
     const wantManual = document.getElementById('wantManual');
     const wantPresetAdd = document.getElementById('wantPresetAdd');
     const wantManualCancel = document.getElementById('wantManualCancel');
+    const wantTagContainer = document.getElementById('wantTagContainer');
     const wantGamesHidden = document.getElementById('wantGamesHidden');
     let wantGamesArray = [];
 
@@ -1096,6 +1145,7 @@
     const recommendManual = document.getElementById('recommendManual');
     const recommendPresetAdd = document.getElementById('recommendPresetAdd');
     const recommendManualCancel = document.getElementById('recommendManualCancel');
+    const recommendTagContainer = document.getElementById('recommendTagContainer');
     const recommendGamesHidden = document.getElementById('recommendGamesHidden');
     const recommendRemainHint = document.getElementById('recommendRemainHint');
     let recommendGamesArray = [];
@@ -1109,6 +1159,7 @@
 
     const submitBtn = document.getElementById('submitBtn');
     const resetBtn = document.getElementById('resetBtn');
+    const resetRegistrationBtn = document.getElementById('resetRegistrationBtn');
     const formTitle = document.getElementById('formTitle');
     const editHint = document.getElementById('editHint');
     const cancelEditLink = document.getElementById('cancelEdit');
@@ -1151,7 +1202,6 @@
     let pageSize = 10;
     let filteredPlayers = [];
 
-    const STORAGE_KEY = 'horror_buddy_registered';
     const USERNAME_KEY = 'horror_buddy_username';
 
     // ============================================================
@@ -1180,39 +1230,42 @@
         return localStorage.getItem(USERNAME_KEY) || '';
     }
 
-    function isRegistered() {
-        return localStorage.getItem(STORAGE_KEY) === 'true';
+    // ---------- 标签渲染（显示已选游戏） ----------
+    function renderTags(container, array, hiddenInput, maxItems) {
+        container.innerHTML = '';
+        array.forEach((item, idx) => {
+            const span = document.createElement('span');
+            span.className = 'tag-item';
+            span.innerHTML = `${escapeHtml(item)} <i class="fas fa-times-circle" data-idx="${idx}"></i>`;
+            container.appendChild(span);
+        });
+        container.querySelectorAll('.tag-item i').forEach(icon => {
+            icon.addEventListener('click', function() {
+                const idx = parseInt(this.dataset.idx);
+                array.splice(idx, 1);
+                if (hiddenInput) hiddenInput.value = JSON.stringify(array);
+                renderTags(container, array, hiddenInput, maxItems);
+                updateRecommendHint();
+            });
+        });
+        if (hiddenInput) hiddenInput.value = JSON.stringify(array);
     }
 
-    // ---------- 在线时间自定义输入格式化 ----------
-    function formatTimeInput(value) {
-        // 只保留数字
-        let digits = value.replace(/\D/g, '');
-        // 最多保留8位
-        if (digits.length > 8) digits = digits.slice(0, 8);
-        // 构建格式化字符串
-        let formatted = '';
-        for (let i = 0; i < digits.length; i++) {
-            if (i === 2 || i === 6) formatted += ':';
-            if (i === 4) formatted += '-';
-            formatted += digits[i];
-        }
-        return formatted;
+    function addToArray(array, value, container, hiddenInput, maxItems, callback) {
+        const trimmed = value.trim();
+        if (!trimmed) return false;
+        if (array.includes(trimmed)) { showToast('已存在', 'error'); return false; }
+        if (maxItems && array.length >= maxItems) { showToast(`最多 ${maxItems} 项`, 'error'); return false; }
+        array.push(trimmed);
+        renderTags(container, array, hiddenInput, maxItems);
+        if (callback) callback(array);
+        return true;
     }
 
-    // 监听输入，实时格式化
-    onlineTimeCustom.addEventListener('input', function() {
-        if (onlineTimeType.value === '自定义') {
-            const formatted = formatTimeInput(this.value);
-            // 如果格式化后与当前值不同，则更新，并保持光标位置（大致）
-            if (formatted !== this.value) {
-                const cursorPos = this.selectionStart;
-                this.value = formatted;
-                // 尝试将光标移动到合适位置，但简单起见，放到末尾
-                this.setSelectionRange(formatted.length, formatted.length);
-            }
-        }
-    });
+    function updateRecommendHint() {
+        const remain = 3 - recommendGamesArray.length;
+        recommendRemainHint.textContent = remain > 0 ? `还可推荐 ${remain} 款` : '已达上限';
+    }
 
     // ---------- 通用下拉+手动切换 ----------
     function setupPresetManual(selectEl, presetRow, manualRow, manualInput, cancelBtn) {
@@ -1236,24 +1289,14 @@
         return { showManual, showPreset };
     }
 
-    // ---------- 标签数组管理 ----------
-    function renderHiddenTags(container, array, hiddenInput) {
-        // 我们不再使用标签UI，直接存储到hidden
-        hiddenInput.value = JSON.stringify(array);
-    }
+    // 初始化各下拉+手动切换
+    setupPresetManual(mainGameSelect, mainPresetRow, mainManualRow, mainManual, mainManualCancel);
+    setupPresetManual(alsoGameSelect, alsoPresetRow, alsoManualRow, alsoManual, alsoManualCancel);
+    setupPresetManual(wantGameSelect, wantPresetRow, wantManualRow, wantManual, wantManualCancel);
+    setupPresetManual(recommendGameSelect, recommendPresetRow, recommendManualRow, recommendManual, recommendManualCancel);
 
-    function addToArray(array, value, hiddenInput, maxItems, callback) {
-        const trimmed = value.trim();
-        if (!trimmed) return false;
-        if (array.includes(trimmed)) { showToast('已存在', 'error'); return false; }
-        if (maxItems && array.length >= maxItems) { showToast(`最多 ${maxItems} 项`, 'error'); return false; }
-        array.push(trimmed);
-        renderHiddenTags(null, array, hiddenInput);
-        if (callback) callback(array);
-        return true;
-    }
-
-    // ---------- 设置添加按钮 ----------
+    // ---------- 添加按钮事件 ----------
+    // 主要游戏
     mainPresetAdd.addEventListener('click', function() {
         const val = mainGameSelect.value;
         if (!val || val === '__manual__') {
@@ -1273,7 +1316,7 @@
             showToast('请选择一个游戏或手动输入', 'error');
             return;
         }
-        if (addToArray(alsoGamesArray, val, alsoGamesHidden)) {
+        if (addToArray(alsoGamesArray, val, alsoTagContainer, alsoGamesHidden)) {
             alsoGameSelect.value = '';
             alsoManual.value = '';
             showToast(`已添加「${val}」`, 'success');
@@ -1284,7 +1327,7 @@
             e.preventDefault();
             const val = this.value.trim();
             if (val) {
-                if (addToArray(alsoGamesArray, val, alsoGamesHidden)) {
+                if (addToArray(alsoGamesArray, val, alsoTagContainer, alsoGamesHidden)) {
                     this.value = '';
                     showToast(`已添加「${val}」`, 'success');
                 }
@@ -1292,7 +1335,7 @@
         }
     });
 
-    // 想玩的游戏
+    // 你想玩的游戏
     wantPresetAdd.addEventListener('click', function() {
         let val = wantGameSelect.value;
         if (val === '__manual__') {
@@ -1302,7 +1345,7 @@
             showToast('请选择一个游戏或手动输入', 'error');
             return;
         }
-        if (addToArray(wantGamesArray, val, wantGamesHidden)) {
+        if (addToArray(wantGamesArray, val, wantTagContainer, wantGamesHidden)) {
             wantGameSelect.value = '';
             wantManual.value = '';
             showToast(`已添加「${val}」`, 'success');
@@ -1313,7 +1356,7 @@
             e.preventDefault();
             const val = this.value.trim();
             if (val) {
-                if (addToArray(wantGamesArray, val, wantGamesHidden)) {
+                if (addToArray(wantGamesArray, val, wantTagContainer, wantGamesHidden)) {
                     this.value = '';
                     showToast(`已添加「${val}」`, 'success');
                 }
@@ -1331,7 +1374,7 @@
             showToast('请选择一个游戏或手动输入', 'error');
             return;
         }
-        if (addToArray(recommendGamesArray, val, recommendGamesHidden, 3, updateRecommendHint)) {
+        if (addToArray(recommendGamesArray, val, recommendTagContainer, recommendGamesHidden, 3, updateRecommendHint)) {
             recommendGameSelect.value = '';
             recommendManual.value = '';
             showToast(`已添加「${val}」`, 'success');
@@ -1342,24 +1385,13 @@
             e.preventDefault();
             const val = this.value.trim();
             if (val) {
-                if (addToArray(recommendGamesArray, val, recommendGamesHidden, 3, updateRecommendHint)) {
+                if (addToArray(recommendGamesArray, val, recommendTagContainer, recommendGamesHidden, 3, updateRecommendHint)) {
                     this.value = '';
                     showToast(`已添加「${val}」`, 'success');
                 }
             }
         }
     });
-
-    function updateRecommendHint() {
-        const remain = 3 - recommendGamesArray.length;
-        recommendRemainHint.textContent = remain > 0 ? `还可推荐 ${remain} 款` : '已达上限';
-    }
-
-    // 初始化各下拉+手动切换
-    setupPresetManual(mainGameSelect, mainPresetRow, mainManualRow, mainManual, mainManualCancel);
-    setupPresetManual(alsoGameSelect, alsoPresetRow, alsoManualRow, alsoManual, alsoManualCancel);
-    setupPresetManual(wantGameSelect, wantPresetRow, wantManualRow, wantManual, wantManualCancel);
-    setupPresetManual(recommendGameSelect, recommendPresetRow, recommendManualRow, recommendManual, recommendManualCancel);
 
     // ---------- 期望水平 ----------
     function renderExpectedLevels() {
@@ -1396,19 +1428,40 @@
         setLevel(option.dataset.level);
     });
 
-    // ---------- 在线时间切换 ----------
+    // ---------- 在线时间掩码 ----------
     onlineTimeType.addEventListener('change', function() {
         if (this.value === '自定义') {
             onlineCustomWrap.classList.add('show');
-            onlineTimeCustom.value = ''; // 清空
+            onlineTimeCustom.value = '';
+            maskPlaceholder.classList.remove('hidden');
         } else {
             onlineCustomWrap.classList.remove('show');
             onlineTimeCustom.value = '';
+            maskPlaceholder.classList.remove('hidden');
             onlineTimeCustom.classList.remove('error');
         }
     });
 
-    // ---------- Firebase 数据加载 ----------
+    onlineTimeCustom.addEventListener('input', function() {
+        // 只保留数字
+        let digits = this.value.replace(/\D/g, '');
+        if (digits.length > 8) digits = digits.slice(0, 8);
+        let formatted = '';
+        for (let i = 0; i < digits.length; i++) {
+            if (i === 2 || i === 6) formatted += ':';
+            if (i === 4) formatted += '-';
+            formatted += digits[i];
+        }
+        this.value = formatted;
+        // 控制占位符显隐
+        if (digits.length > 0) {
+            maskPlaceholder.classList.add('hidden');
+        } else {
+            maskPlaceholder.classList.remove('hidden');
+        }
+    });
+
+    // ---------- 数据加载 ----------
     function loadDataFromFirebase() {
         if (!firebaseInitialized) return;
         playersRef.on('value', snapshot => {
@@ -1505,8 +1558,8 @@
                 <div class="info-row"><span class="info-label">游戏时长</span><span class="info-value">${escapeHtml(p.duration||'—')}</span></div>
             `;
 
-            const currentUser = getCurrentUsername();
-            const isOwn = (p.username === currentUser);
+            // 删除按钮：所有用户可见，但点击时验证用户名
+            const deleteBtn = `<button class="btn-sm btn-danger" data-action="delete" data-id="${p.id}"><i class="fas fa-trash"></i> 删除</button>`;
 
             html += `
                 <tr>
@@ -1521,7 +1574,7 @@
                     </td>
                     <td style="text-align:center;">
                         <div class="action-btns">
-                            ${isOwn ? `<button class="btn-sm btn-danger" data-action="delete" data-id="${p.id}"><i class="fas fa-trash"></i></button>` : ''}
+                            ${deleteBtn}
                         </div>
                     </td>
                 </tr>
@@ -1529,6 +1582,7 @@
         });
         tableBody.innerHTML = html;
 
+        // 更多信息
         tableBody.querySelectorAll('.more-btn').forEach(btn => {
             btn.addEventListener('click', function() {
                 const id = this.dataset.moreId;
@@ -1543,6 +1597,7 @@
             });
         });
 
+        // 删除事件
         tableBody.querySelectorAll('[data-action="delete"]').forEach(btn => {
             btn.addEventListener('click', function() {
                 deletePlayer(this.dataset.id);
@@ -1632,65 +1687,65 @@
         }
     }
 
-    // ---------- 删除 ----------
+    // ---------- 删除（验证用户名） ----------
     function deletePlayer(id) {
         const player = playersData[id];
         if (!player) return;
-        const currentUser = getCurrentUsername();
-        if (player.username !== currentUser) {
-            showToast('无权删除他人的记录', 'error');
-            return;
-        }
-        if (!confirm(`删除「${player.username}」的登记？`)) return;
-        playersRef.child(id).remove();
-        showToast(`已删除 ${player.username}`, 'info');
-        if (editingId === id) cancelEdit();
-    }
 
-    // ---------- 编辑取消 ----------
-    function cancelEdit() {
-        editingId = null;
-        formTitle.textContent = '📝 登记你的游戏信息';
-        submitBtn.innerHTML = '<i class="fas fa-save"></i> 登记';
-        editHint.style.display = 'none';
-        resetFormFields();
+        // 弹窗确认
+        if (!confirm(`确认删除「${player.username}」的记录吗？`)) return;
+
+        // 验证当前用户是否匹配
+        const currentUser = getCurrentUsername();
+        if (currentUser && currentUser === player.username) {
+            // 直接删除
+            playersRef.child(id).remove();
+            showToast(`已删除 ${player.username}`, 'info');
+        } else {
+            // 提示输入用户名
+            const inputName = prompt(`请输入该记录的用户名「${player.username}」以确认删除：`);
+            if (inputName === null) return; // 取消
+            if (inputName.trim() === player.username) {
+                playersRef.child(id).remove();
+                showToast(`已删除 ${player.username}`, 'info');
+            } else {
+                showToast('用户名不匹配，删除失败', 'error');
+            }
+        }
     }
 
     // ---------- 重置表单 ----------
     function resetFormFields() {
         form.reset();
-        // 重置所有下拉和手动
         [mainGameSelect, alsoGameSelect, wantGameSelect, recommendGameSelect].forEach(sel => sel.value = '');
-        // 重置手动行
         [mainManualRow, alsoManualRow, wantManualRow, recommendManualRow].forEach(row => row.classList.remove('show'));
         [mainPresetRow, alsoPresetRow, wantPresetRow, recommendPresetRow].forEach(row => row.style.display = 'flex');
-        // 清空数组
         alsoGamesArray = [];
-        renderHiddenTags(null, alsoGamesArray, alsoGamesHidden);
+        renderTags(alsoTagContainer, alsoGamesArray, alsoGamesHidden);
         wantGamesArray = [];
-        renderHiddenTags(null, wantGamesArray, wantGamesHidden);
+        renderTags(wantTagContainer, wantGamesArray, wantGamesHidden);
         recommendGamesArray = [];
-        renderHiddenTags(null, recommendGamesArray, recommendGamesHidden);
+        renderTags(recommendTagContainer, recommendGamesArray, recommendGamesHidden, 3);
         updateRecommendHint();
         setLevel('萌新');
         expectedLevels = [];
         renderExpectedLevels();
         onlineCustomWrap.classList.remove('show');
         onlineTimeCustom.value = '';
+        maskPlaceholder.classList.remove('hidden');
         onlineTimeCustom.classList.remove('error');
     }
 
-    // ---------- 在线时间校验（提交时） ----------
-    function validateTimeString(timeStr) {
-        // 格式必须为 HH:MM-HH:MM
-        const regex = /^(\d{1,2}):(\d{2})\s*-\s*(\d{1,2}):(\d{2})$/;
-        const match = timeStr.match(regex);
-        if (!match) return false;
-        const h1 = parseInt(match[1]), m1 = parseInt(match[2]);
-        const h2 = parseInt(match[3]), m2 = parseInt(match[4]);
-        if (h1 > 24 || m1 > 59 || h2 > 24 || m2 > 59) return false;
-        return true;
-    }
+    // ---------- 重新登记 ----------
+    resetRegistrationBtn.addEventListener('click', function() {
+        if (confirm('确认重新登记吗？这将清空当前表单并允许你重新填写。')) {
+            // 清除本地存储的用户名标记
+            localStorage.removeItem(USERNAME_KEY);
+            // 重置表单
+            resetFormFields();
+            showToast('已重置，可以重新登记', 'info');
+        }
+    });
 
     // ---------- 表单提交 ----------
     form.addEventListener('submit', function(e) {
@@ -1713,9 +1768,9 @@
             showToast('请选择或输入主要游戏', 'error'); mainGameSelect.focus(); return;
         }
 
-        // 检查用户名重复
+        // 检查用户名重复（防止同一用户名重复提交）
         const existing = Object.values(playersData).find(p => p.username === username);
-        if (existing && !editingId) {
+        if (existing) {
             showToast(`用户名 "${username}" 已被登记，请勿重复提交`, 'error');
             return;
         }
@@ -1725,8 +1780,20 @@
         let onlineTimeCustomVal = '';
         if (onlineTimeTypeVal === '自定义') {
             onlineTimeCustomVal = onlineTimeCustom.value.trim();
-            if (!validateTimeString(onlineTimeCustomVal)) {
+            const regex = /^\d{1,2}:\d{2}\s*-\s*\d{1,2}:\d{2}$/;
+            if (!regex.test(onlineTimeCustomVal)) {
                 showToast('自定义时间格式错误，请使用 12:00-18:00 格式', 'error');
+                onlineTimeCustom.focus();
+                return;
+            }
+            // 校验小时分钟
+            const parts = onlineTimeCustomVal.split('-');
+            const start = parts[0].trim().split(':');
+            const end = parts[1].trim().split(':');
+            const h1 = parseInt(start[0]), m1 = parseInt(start[1]);
+            const h2 = parseInt(end[0]), m2 = parseInt(end[1]);
+            if (h1 > 24 || m1 > 59 || h2 > 24 || m2 > 59) {
+                showToast('时间格式错误：小时不能超过24，分钟不能超过59', 'error');
                 onlineTimeCustom.focus();
                 return;
             }
@@ -1749,9 +1816,7 @@
         const newId = Date.now().toString(36) + '_' + Math.random().toString(36).substr(2, 6);
         playersRef.child(newId).set(data)
             .then(() => {
-                localStorage.setItem(STORAGE_KEY, 'true');
                 localStorage.setItem(USERNAME_KEY, username);
-                document.getElementById('formCard').style.display = 'none';
                 showToast(`🎉 ${username} 登记成功`, 'success');
                 resetFormFields();
             })
@@ -1764,16 +1829,9 @@
     // ---------- 重置按钮 ----------
     resetBtn.addEventListener('click', function(e) {
         e.preventDefault();
-        if (editingId) {
-            if (!confirm('取消编辑并重置？')) return;
-            cancelEdit();
-        } else {
-            resetFormFields();
-            showToast('已重置', 'info');
-        }
+        resetFormFields();
+        showToast('已重置', 'info');
     });
-
-    cancelEditLink.addEventListener('click', function(e) { e.preventDefault(); cancelEdit(); });
 
     // ---------- 搜索 & 筛选 ----------
     searchInput.addEventListener('input', function() { currentPage = 1; applyFiltersAndRender(); });
@@ -1800,26 +1858,22 @@
     // ---------- 键盘 ----------
     document.addEventListener('keydown', function(e) {
         if (e.ctrlKey && e.key === 'f') { e.preventDefault(); searchInput.focus(); }
-        if (e.key === 'Escape' && editingId) cancelEdit();
+        if (e.key === 'Escape' && editingId) { /* 取消编辑（暂未使用） */ }
     });
 
     // ---------- 初始化 ----------
     function init() {
-        if (isRegistered()) {
-            document.getElementById('formCard').style.display = 'none';
-        }
-
         setLevel('萌新');
         expectedLevels = [];
         renderExpectedLevels();
         alsoGamesArray = [];
-        renderHiddenTags(null, alsoGamesArray, alsoGamesHidden);
+        renderTags(alsoTagContainer, alsoGamesArray, alsoGamesHidden);
         wantGamesArray = [];
-        renderHiddenTags(null, wantGamesArray, wantGamesHidden);
+        renderTags(wantTagContainer, wantGamesArray, wantGamesHidden);
         recommendGamesArray = [];
-        renderHiddenTags(null, recommendGamesArray, recommendGamesHidden);
+        renderTags(recommendTagContainer, recommendGamesArray, recommendGamesHidden, 3);
         updateRecommendHint();
-        // 确保所有下拉预设行显示
+        // 确保预设行显示
         [mainPresetRow, alsoPresetRow, wantPresetRow, recommendPresetRow].forEach(row => row.style.display = 'flex');
         [mainManualRow, alsoManualRow, wantManualRow, recommendManualRow].forEach(row => row.classList.remove('show'));
 
