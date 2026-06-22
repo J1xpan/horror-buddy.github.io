@@ -1,0 +1,1912 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=yes" />
+    <title>🎮 恐游搭子 · 登记系统</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css" />
+    <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-database-compat.js"></script>
+    <style>
+        /* ===== 全局重置 ===== */
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, "Helvetica Neue", "PingFang SC", "Microsoft YaHei", sans-serif;
+            background: #0d0d0e;
+            color: #f5f5f7;
+            min-height: 100vh;
+            padding: 16px 12px;
+            display: flex;
+            justify-content: center;
+            background-image: radial-gradient(ellipse at 50% 0%, #1c1c1e 0%, #0d0d0e 70%);
+            background-attachment: fixed;
+        }
+        ::-webkit-scrollbar { width: 4px; height: 4px; }
+        ::-webkit-scrollbar-track { background: transparent; }
+        ::-webkit-scrollbar-thumb { background: rgba(255,255,255,0.2); border-radius: 20px; }
+        .container { max-width: 1360px; width: 100%; }
+
+        /* ===== 卡片 ===== */
+        .card {
+            background: rgba(28,28,30,0.85);
+            border-radius: 20px;
+            padding: 18px 16px;
+            margin-bottom: 20px;
+            border: 0.5px solid rgba(255,255,255,0.06);
+            box-shadow: 0 6px 24px rgba(0,0,0,0.5);
+        }
+        .card-title {
+            font-size: 1.1rem;
+            font-weight: 600;
+            letter-spacing: -0.01em;
+            color: #f5f5f7;
+            margin-bottom: 16px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+        .card-title i { color: #007aff; font-size: 1.1rem; }
+
+        /* ===== 头部 ===== */
+        .header {
+            text-align: center;
+            padding: 20px 16px 16px;
+            margin-bottom: 20px;
+            background: rgba(28,28,30,0.6);
+            border-radius: 24px;
+            border: 0.5px solid rgba(255,255,255,0.05);
+            box-shadow: 0 6px 24px rgba(0,0,0,0.4);
+        }
+        .header h1 {
+            font-size: 2rem;
+            font-weight: 700;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 10px;
+            color: #f5f5f7;
+        }
+        .header h1 i { font-size: 2rem; color: #007aff; filter: drop-shadow(0 2px 8px rgba(0,122,255,0.25)); }
+        .header p { margin-top: 6px; font-size: 0.95rem; color: #8e8e93; }
+        .header p i { color: #007aff; margin: 0 4px; }
+        .channel-guide { margin-top: 12px; color: #8e8e93; font-size: 0.85rem; }
+        .channel-guide i { color: #007aff; margin-right: 4px; }
+        .channel-links {
+            display: flex;
+            justify-content: center;
+            gap: 12px;
+            margin-top: 10px;
+            flex-wrap: wrap;
+        }
+        .channel-links a {
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            background: rgba(255,255,255,0.06);
+            padding: 8px 16px;
+            border-radius: 30px;
+            color: #f5f5f7;
+            text-decoration: none;
+            font-weight: 500;
+            font-size: 0.85rem;
+            border: 0.5px solid rgba(255,255,255,0.08);
+            transition: background 0.2s;
+        }
+        .channel-links a:active { transform: scale(0.96); }
+        .channel-links a.kook i { color: #5865F2; }
+        .channel-links a.oopz i { color: #00C7B1; }
+
+        /* ===== 表单 ===== */
+        .form-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 18px 24px;
+            align-items: start;
+        }
+        .form-group {
+            display: flex;
+            flex-direction: column;
+            gap: 4px;
+        }
+        .form-group label {
+            font-size: 0.75rem;
+            font-weight: 500;
+            color: #8e8e93;
+            text-transform: uppercase;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+        }
+        .form-group label i { color: #636366; font-size: 0.75rem; }
+        .form-group input,
+        .form-group select {
+            background: rgba(255,255,255,0.06);
+            border: 0.5px solid rgba(255,255,255,0.08);
+            border-radius: 12px;
+            padding: 12px 14px;
+            font-size: 16px;
+            color: #f5f5f7;
+            transition: border-color 0.2s, background 0.2s;
+            outline: none;
+            font-family: inherit;
+            -webkit-appearance: none;
+            appearance: none;
+            width: 100%;
+            min-height: 48px;
+        }
+        .form-group input::placeholder { color: #636366; font-size: 15px; }
+        .form-group input:focus,
+        .form-group select:focus {
+            border-color: #007aff;
+            background: rgba(255,255,255,0.08);
+            box-shadow: 0 0 0 3px rgba(0,122,255,0.12);
+        }
+        .form-group select {
+            background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='8' viewBox='0 0 12 8'%3E%3Cpath d='M1 1l5 5 5-5' stroke='%238e8e93' stroke-width='1.5' fill='none' stroke-linecap='round'/%3E%3C/svg%3E");
+            background-repeat: no-repeat;
+            background-position: right 14px center;
+            padding-right: 40px;
+        }
+        .form-group select option { background: #1c1c1e; color: #f5f5f7; }
+
+        /* ===== 主要游戏：预设行和手动输入行切换 ===== */
+        .main-game-row {
+            display: flex;
+            gap: 6px;
+            align-items: center;
+        }
+        .main-game-row select {
+            flex: 1;
+            min-height: 48px;
+        }
+        .main-game-row .btn-add-preset {
+            background: rgba(0,122,255,0.15);
+            border: none;
+            border-radius: 30px;
+            padding: 0 16px;
+            font-size: 0.85rem;
+            color: #66b0ff;
+            cursor: pointer;
+            font-family: inherit;
+            white-space: nowrap;
+            min-height: 48px;
+            display: flex;
+            align-items: center;
+            touch-action: manipulation;
+        }
+        .main-game-row .btn-add-preset:active { transform: scale(0.96); }
+
+        .manual-input-row {
+            display: none;
+            gap: 6px;
+            align-items: center;
+        }
+        .manual-input-row.show {
+            display: flex;
+        }
+        .manual-input-row input {
+            flex: 1;
+            min-height: 48px;
+            background: rgba(255,255,255,0.06);
+            border: 0.5px solid rgba(255,255,255,0.08);
+            border-radius: 12px;
+            padding: 12px 14px;
+            font-size: 16px;
+            color: #f5f5f7;
+            outline: none;
+        }
+        .manual-input-row input:focus {
+            border-color: #007aff;
+            background: rgba(255,255,255,0.08);
+            box-shadow: 0 0 0 3px rgba(0,122,255,0.12);
+        }
+        .manual-input-row .btn-cancel {
+            background: rgba(255,255,255,0.06);
+            border: none;
+            border-radius: 30px;
+            padding: 0 16px;
+            font-size: 0.85rem;
+            color: #aeaeb2;
+            cursor: pointer;
+            font-family: inherit;
+            white-space: nowrap;
+            min-height: 48px;
+            display: flex;
+            align-items: center;
+            touch-action: manipulation;
+        }
+        .manual-input-row .btn-cancel:active { transform: scale(0.96); }
+
+        /* ===== 标签输入 ===== */
+        .tag-section {
+            display: flex;
+            flex-direction: column;
+            gap: 6px;
+        }
+        .tag-preset-row {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 6px;
+            align-items: center;
+        }
+        .tag-preset-row select {
+            flex: 1;
+            min-height: 48px;
+            background: rgba(255,255,255,0.06);
+            border: 0.5px solid rgba(255,255,255,0.08);
+            border-radius: 12px;
+            padding: 10px 14px;
+            font-size: 16px;
+            color: #f5f5f7;
+            outline: none;
+            font-family: inherit;
+            -webkit-appearance: none;
+            appearance: none;
+            background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='8' viewBox='0 0 12 8'%3E%3Cpath d='M1 1l5 5 5-5' stroke='%238e8e93' stroke-width='1.5' fill='none' stroke-linecap='round'/%3E%3C/svg%3E");
+            background-repeat: no-repeat;
+            background-position: right 14px center;
+            padding-right: 40px;
+        }
+        .tag-preset-row .btn-add-preset {
+            background: rgba(0,122,255,0.15);
+            border: none;
+            border-radius: 30px;
+            padding: 0 16px;
+            font-size: 0.85rem;
+            color: #66b0ff;
+            cursor: pointer;
+            font-family: inherit;
+            white-space: nowrap;
+            min-height: 48px;
+            display: flex;
+            align-items: center;
+            touch-action: manipulation;
+        }
+        .tag-preset-row .btn-add-preset:active { transform: scale(0.96); }
+        .tag-preset-hint { font-size: 0.7rem; color: #636366; margin-left: 4px; }
+        .tag-input-wrapper {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 6px;
+            align-items: center;
+            background: rgba(255,255,255,0.06);
+            border: 0.5px solid rgba(255,255,255,0.08);
+            border-radius: 12px;
+            padding: 6px 10px;
+            transition: border-color 0.2s, background 0.2s;
+        }
+        .tag-input-wrapper:focus-within {
+            border-color: #007aff;
+            background: rgba(255,255,255,0.08);
+            box-shadow: 0 0 0 3px rgba(0,122,255,0.12);
+        }
+        .tag-item {
+            display: inline-flex;
+            align-items: center;
+            gap: 4px;
+            background: rgba(0,122,255,0.15);
+            border-radius: 30px;
+            padding: 4px 12px 4px 14px;
+            font-size: 0.85rem;
+            color: #66b0ff;
+            border: 0.5px solid rgba(0,122,255,0.15);
+        }
+        .tag-item i {
+            cursor: pointer;
+            font-size: 0.8rem;
+            color: #8e8e93;
+            padding: 4px;
+            touch-action: manipulation;
+        }
+        .tag-item i:active { color: #ff453a; }
+        .tag-input {
+            flex: 1;
+            min-width: 70px;
+            background: transparent;
+            border: none;
+            padding: 8px 4px;
+            font-size: 16px;
+            color: #f5f5f7;
+            outline: none;
+            font-family: inherit;
+        }
+        .tag-input::placeholder { color: #636366; font-size: 15px; }
+        .tag-add-btn {
+            background: rgba(255,255,255,0.06);
+            border: none;
+            border-radius: 30px;
+            padding: 0 14px;
+            font-size: 0.85rem;
+            color: #aeaeb2;
+            cursor: pointer;
+            font-family: inherit;
+            white-space: nowrap;
+            min-height: 40px;
+            display: flex;
+            align-items: center;
+        }
+        .tag-add-btn:active { transform: scale(0.96); }
+
+        /* ===== 水平 + 期望水平 同行 ===== */
+        .level-row {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 20px;
+            grid-column: 1 / -1;
+        }
+        .level-group, .expect-level-group {
+            grid-column: auto;
+        }
+        .level-selector, .expect-level-selector {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 6px;
+            padding-top: 4px;
+        }
+        .level-option, .expect-level-option {
+            padding: 6px 14px;
+            border-radius: 30px;
+            background: rgba(255,255,255,0.04);
+            border: 1px solid rgba(255,255,255,0.06);
+            cursor: pointer;
+            font-size: 0.85rem;
+            font-weight: 500;
+            color: #aeaeb2;
+            transition: background 0.2s, color 0.2s, border-color 0.2s;
+            user-select: none;
+            touch-action: manipulation;
+            min-height: 36px;
+            display: flex;
+            align-items: center;
+        }
+        .level-option:active, .expect-level-option:active { transform: scale(0.96); }
+        .level-option.active, .expect-level-option.active {
+            background: #007aff;
+            border-color: #007aff;
+            color: #fff;
+            box-shadow: 0 2px 12px rgba(0,122,255,0.25);
+        }
+
+        /* ===== 在线时间自定义 ===== */
+        .online-custom {
+            margin-top: 4px;
+            display: none;
+        }
+        .online-custom.show { display: block; }
+        .online-custom input {
+            width: 100%;
+            background: rgba(255,255,255,0.06);
+            border: 0.5px solid rgba(255,255,255,0.08);
+            border-radius: 12px;
+            padding: 12px 14px;
+            font-size: 16px;
+            color: #f5f5f7;
+            outline: none;
+            font-family: inherit;
+        }
+        .online-custom input:focus {
+            border-color: #007aff;
+            background: rgba(255,255,255,0.08);
+            box-shadow: 0 0 0 3px rgba(0,122,255,0.12);
+        }
+        .online-custom input.error {
+            border-color: #ff453a;
+            box-shadow: 0 0 0 3px rgba(255,69,58,0.2);
+        }
+        .online-custom span {
+            font-size: 0.7rem;
+            color: #636366;
+            margin-top: 4px;
+            display: block;
+        }
+
+        /* ===== 按钮 ===== */
+        .form-actions {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 10px;
+            align-items: center;
+            margin-top: 8px;
+            justify-content: center;
+            grid-column: 1 / -1;
+        }
+        .btn {
+            padding: 12px 24px;
+            border: none;
+            border-radius: 30px;
+            font-size: 1rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+            font-family: inherit;
+            touch-action: manipulation;
+            min-height: 48px;
+            flex: 1 1 auto;
+            min-width: 120px;
+        }
+        .btn:active { transform: scale(0.96); }
+        .btn-primary {
+            background: #007aff;
+            color: #fff;
+            box-shadow: 0 2px 12px rgba(0,122,255,0.25);
+        }
+        .btn-secondary {
+            background: rgba(255,255,255,0.08);
+            color: #aeaeb2;
+            border: 0.5px solid rgba(255,255,255,0.06);
+        }
+        #editHint {
+            font-size: 0.8rem;
+            color: #636366;
+            display: none;
+            width: 100%;
+            text-align: center;
+        }
+        #editHint a { color: #007aff; text-decoration: none; font-weight: 500; }
+
+        /* ===== 统计 ===== */
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 8px;
+        }
+        .stat-item {
+            background: rgba(255,255,255,0.04);
+            border-radius: 16px;
+            padding: 12px 4px;
+            text-align: center;
+            border: 0.5px solid rgba(255,255,255,0.04);
+        }
+        .stat-number {
+            font-size: 1.5rem;
+            font-weight: 700;
+            color: #f5f5f7;
+            line-height: 1.2;
+        }
+        .stat-number.gradient-blue { color: #007aff; }
+        .stat-number.gradient-green { color: #34c759; }
+        .stat-number.gradient-orange { color: #ff9f0a; }
+        .stat-number.gradient-pink { color: #ff2d55; }
+        .stat-number.gradient-purple { color: #af52de; }
+        .stat-label {
+            font-size: 0.65rem;
+            color: #8e8e93;
+            margin-top: 2px;
+            font-weight: 500;
+        }
+
+        /* ===== 推荐榜单 ===== */
+        .rank-list {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 8px;
+            margin-top: 6px;
+        }
+        .rank-item {
+            background: rgba(255,255,255,0.04);
+            border-radius: 14px;
+            padding: 10px 12px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            border: 0.5px solid rgba(255,255,255,0.05);
+            font-size: 0.85rem;
+        }
+        .rank-game {
+            font-weight: 500;
+            color: #f5f5f7;
+        }
+        .rank-votes {
+            background: rgba(0,122,255,0.15);
+            padding: 2px 10px;
+            border-radius: 30px;
+            font-size: 0.75rem;
+            color: #66b0ff;
+            font-weight: 600;
+        }
+
+        /* ===== 搭子列表 ===== */
+        .list-controls {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 12px;
+            align-items: center;
+            margin-bottom: 12px;
+        }
+        .list-controls label {
+            font-size: 0.8rem;
+            color: #8e8e93;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+        }
+        .list-controls select {
+            background: rgba(255,255,255,0.06);
+            border: 0.5px solid rgba(255,255,255,0.08);
+            border-radius: 30px;
+            padding: 6px 12px;
+            font-size: 0.85rem;
+            color: #f5f5f7;
+            outline: none;
+            font-family: inherit;
+        }
+        .search-box {
+            display: flex;
+            align-items: center;
+            background: rgba(255,255,255,0.05);
+            border-radius: 30px;
+            padding: 0 14px;
+            border: 0.5px solid rgba(255,255,255,0.06);
+            flex: 1 1 180px;
+        }
+        .search-box input {
+            background: transparent;
+            border: none;
+            padding: 8px 10px;
+            font-size: 16px;
+            color: #f5f5f7;
+            outline: none;
+            width: 100%;
+            font-family: inherit;
+        }
+        .search-box input::placeholder { color: #636366; }
+        .filter-group {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 6px;
+            align-items: center;
+        }
+        .filter-group select {
+            background: rgba(255,255,255,0.05);
+            border: 0.5px solid rgba(255,255,255,0.06);
+            border-radius: 30px;
+            padding: 6px 32px 6px 14px;
+            font-size: 0.8rem;
+            color: #aeaeb2;
+            outline: none;
+            -webkit-appearance: none;
+            appearance: none;
+            background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='10' height='6' viewBox='0 0 10 6'%3E%3Cpath d='M1 1l4 4 4-4' stroke='%238e8e93' stroke-width='1.5' fill='none' stroke-linecap='round'/%3E%3C/svg%3E");
+            background-repeat: no-repeat;
+            background-position: right 10px center;
+            min-width: 70px;
+            min-height: 36px;
+        }
+        .clear-filters {
+            color: #636366;
+            font-size: 0.8rem;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            gap: 4px;
+            padding: 6px 14px;
+            border-radius: 30px;
+            background: rgba(255,255,255,0.04);
+            border: 0.5px solid transparent;
+            min-height: 36px;
+        }
+        .clear-filters:active { transform: scale(0.96); }
+
+        .table-wrapper {
+            overflow-x: auto;
+            border-radius: 14px;
+            border: 0.5px solid rgba(255,255,255,0.05);
+            background: rgba(255,255,255,0.02);
+            -webkit-overflow-scrolling: touch;
+        }
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            font-size: 0.75rem;
+            min-width: 600px;
+        }
+        thead {
+            border-bottom: 0.5px solid rgba(255,255,255,0.06);
+        }
+        thead th {
+            padding: 10px 8px;
+            text-align: left;
+            font-weight: 600;
+            color: #8e8e93;
+            font-size: 0.65rem;
+            text-transform: uppercase;
+            white-space: nowrap;
+        }
+        tbody tr {
+            border-bottom: 0.5px solid rgba(255,255,255,0.04);
+        }
+        tbody tr:last-child { border-bottom: none; }
+        tbody td {
+            padding: 8px 8px;
+            color: #d1d1d6;
+            vertical-align: middle;
+        }
+        tbody td strong { color: #f5f5f7; font-weight: 600; }
+        .level-badge {
+            display: inline-block;
+            padding: 2px 10px;
+            border-radius: 30px;
+            font-size: 0.65rem;
+            font-weight: 600;
+        }
+        .level-badge.mengxin { background: rgba(0,122,255,0.15); color: #66b0ff; }
+        .level-badge.putong { background: rgba(52,199,89,0.15); color: #5edb7a; }
+        .level-badge.gaoshou { background: rgba(255,159,10,0.15); color: #ffbe3b; }
+        .level-badge.dashouzi { background: rgba(255,45,85,0.15); color: #ff6b7d; }
+        .duration-badge, .voice-badge, .tag-badge {
+            display: inline-block;
+            padding: 2px 8px;
+            border-radius: 20px;
+            background: rgba(255,255,255,0.04);
+            font-size: 0.65rem;
+            color: #aeaeb2;
+            margin: 1px 1px 0 0;
+        }
+        .voice-badge { background: rgba(0,122,255,0.08); color: #66b0ff; }
+        .action-btns {
+            display: flex;
+            gap: 4px;
+            flex-wrap: wrap;
+            justify-content: center;
+        }
+        .btn-sm {
+            padding: 4px 10px;
+            font-size: 0.7rem;
+            border-radius: 30px;
+            min-height: 32px;
+            min-width: 32px;
+            border: none;
+            cursor: pointer;
+            font-family: inherit;
+            background: rgba(255,255,255,0.06);
+            color: #aeaeb2;
+            touch-action: manipulation;
+        }
+        .btn-sm:active { transform: scale(0.96); }
+        .btn-sm.btn-danger { background: rgba(255,69,58,0.15); color: #ff453a; }
+        .more-btn {
+            background: rgba(255,255,255,0.06);
+            color: #aeaeb2;
+            border: 0.5px solid rgba(255,255,255,0.06);
+        }
+        .more-btn.active { background: rgba(0,122,255,0.15); color: #66b0ff; }
+
+        .more-info {
+            display: none;
+            background: rgba(255,255,255,0.03);
+            border-radius: 8px;
+            padding: 8px 10px;
+            margin-top: 6px;
+            font-size: 0.75rem;
+            color: #aeaeb2;
+        }
+        .more-info.show { display: block; }
+        .more-info .info-row {
+            display: flex;
+            gap: 8px;
+            padding: 2px 0;
+        }
+        .more-info .info-label {
+            color: #8e8e93;
+            min-width: 60px;
+        }
+        .more-info .info-value {
+            color: #f5f5f7;
+            word-break: break-all;
+        }
+
+        .empty-state {
+            text-align: center;
+            padding: 32px 16px;
+            color: #636366;
+        }
+        .empty-state i {
+            font-size: 2rem;
+            color: #3a3a3c;
+            margin-bottom: 12px;
+            display: block;
+        }
+        .empty-state p { font-size: 0.9rem; }
+
+        .pagination {
+            display: flex;
+            justify-content: center;
+            gap: 6px;
+            margin-top: 12px;
+            flex-wrap: wrap;
+        }
+        .pagination button {
+            background: rgba(255,255,255,0.06);
+            border: 0.5px solid rgba(255,255,255,0.08);
+            border-radius: 30px;
+            padding: 4px 12px;
+            color: #aeaeb2;
+            cursor: pointer;
+            font-size: 0.8rem;
+            min-height: 36px;
+            touch-action: manipulation;
+        }
+        .pagination button:active { transform: scale(0.96); }
+        .pagination button.active {
+            background: #007aff;
+            color: #fff;
+            border-color: #007aff;
+        }
+
+        /* ===== Toast ===== */
+        .toast {
+            position: fixed;
+            top: 16px;
+            left: 16px;
+            right: 16px;
+            transform: translateY(-120px);
+            padding: 14px 20px;
+            border-radius: 16px;
+            background: rgba(44,44,46,0.92);
+            backdrop-filter: blur(12px);
+            border: 0.5px solid rgba(255,255,255,0.08);
+            color: #f5f5f7;
+            font-weight: 500;
+            box-shadow: 0 16px 48px rgba(0,0,0,0.6);
+            transition: transform 0.4s cubic-bezier(0.34,1.56,0.64,1);
+            z-index: 999;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            font-size: 0.9rem;
+            pointer-events: none;
+        }
+        .toast.show { transform: translateY(0); }
+        .toast.success i { color: #34c759; }
+        .toast.error i { color: #ff453a; }
+        .toast.info i { color: #007aff; }
+
+        .footer {
+            text-align: center;
+            padding: 16px 0 4px;
+            color: #3a3a3c;
+            font-size: 0.7rem;
+            border-top: 0.5px solid rgba(255,255,255,0.04);
+            margin-top: 8px;
+        }
+
+        /* ===== 大屏适配 ===== */
+        @media (min-width: 640px) {
+            body { padding: 24px 20px; }
+            .card { padding: 24px 28px; border-radius: 24px; }
+            .form-grid { gap: 18px 24px; }
+            .stats-grid { grid-template-columns: repeat(auto-fit, minmax(80px, 1fr)); }
+            .rank-list { grid-template-columns: repeat(auto-fill, minmax(180px, 1fr)); }
+            .btn { flex: 0 1 auto; min-width: auto; }
+            .form-actions { justify-content: center; }
+            .toast {
+                left: 50%;
+                right: auto;
+                transform: translateX(-50%) translateY(-120px);
+                max-width: 90%;
+                white-space: nowrap;
+            }
+            .toast.show { transform: translateX(-50%) translateY(0); }
+            .level-row {
+                grid-template-columns: 1fr 1fr;
+            }
+            .list-controls {
+                flex-wrap: nowrap;
+            }
+        }
+        @media (max-width: 639px) {
+            .form-grid {
+                grid-template-columns: 1fr;
+            }
+            .level-row {
+                grid-template-columns: 1fr;
+                gap: 14px;
+            }
+            .level-group, .expect-level-group {
+                grid-column: auto;
+            }
+            .main-game-row {
+                flex-wrap: nowrap;
+            }
+            .tag-preset-row {
+                flex-wrap: nowrap;
+            }
+            .tag-preset-row select {
+                flex: 1;
+            }
+        }
+    </style>
+</head>
+<body>
+<div class="container">
+
+    <!-- ===== 头部 ===== -->
+    <header class="header">
+        <h1><i class="fas fa-skull"></i>恐游搭子</h1>
+        <p><i class="fas fa-users"></i> 登记信息 · 找到一起恐惧的伙伴 <i class="fas fa-ghost"></i></p>
+        <div class="channel-guide"><i class="fas fa-headset"></i> 加入社区频道：点击下方按钮一键跳转</div>
+        <div class="channel-links">
+            <a href="https://kook.vip/IdRdbB" target="_blank" class="kook"><i class="fas fa-comment-dots"></i> KOOK</a>
+            <a href="https://oopz.cn/i/BqLFqC" target="_blank" class="oopz"><i class="fas fa-headset"></i> OOPZ</a>
+        </div>
+    </header>
+
+    <!-- ===== 登记卡片 ===== -->
+    <section class="card" id="formCard" style="display:block;">
+        <div class="card-title"><i class="fas fa-pen-fancy"></i> <span id="formTitle">📝 登记你的游戏信息</span></div>
+        <form id="playerForm" autocomplete="off">
+            <div class="form-grid">
+                <!-- 用户名 -->
+                <div class="form-group">
+                    <label><i class="fas fa-user"></i> 用户名</label>
+                    <input type="text" id="username" placeholder="你希望别人怎么称呼你？" required />
+                </div>
+                <!-- 语音方式 -->
+                <div class="form-group">
+                    <label><i class="fas fa-headset"></i> 语音方式</label>
+                    <select id="voiceSoftware">
+                        <option value="KOOK">KOOK</option>
+                        <option value="OOPZ">OOPZ</option>
+                        <option value="群语音">群语音</option>
+                    </select>
+                </div>
+
+                <!-- 你主要玩的游戏 -->
+                <div class="form-group">
+                    <label><i class="fas fa-gamepad"></i> 你主要玩的游戏</label>
+                    <div class="main-game-row" id="mainGamePresetRow">
+                        <select id="mainGame">
+                            <option value="">— 选择游戏 —</option>
+                            <option value="恐鬼症（Phasmophobia）">恐鬼症（Phasmophobia）</option>
+                            <option value="幽灵观察者">幽灵观察者</option>
+                            <option value="逃生：试炼">逃生：试炼</option>
+                            <option value="逃离后室（Inside the Backrooms）">逃离后室（Inside the Backrooms）</option>
+                            <option value="森林">森林</option>
+                            <option value="森林之子">森林之子</option>
+                            <option value="roblox">roblox</option>
+                            <option value="鬼魂">鬼魂</option>
+                            <option value="R.E.P.O.">R.E.P.O.</option>
+                            <option value="安抚">安抚</option>
+                            <option value="致命公司">致命公司</option>
+                            <option value="前方高能">前方高能</option>
+                            <option value="玩具熊的午夜后宫">玩具熊的午夜后宫</option>
+                            <option value="吞噬">吞噬</option>
+                            <option value="笼子">笼子</option>
+                            <option value="未知计划（Project Unknown）">未知计划（Project Unknown）</option>
+                            <option value="幽霾（Obscure）">幽霾（Obscure）</option>
+                            <option value="猜猜我是谁">猜猜我是谁</option>
+                            <option value="__manual__">✏️ 手动输入</option>
+                        </select>
+                        <button type="button" class="btn-add-preset" id="mainGamePresetAdd">添加</button>
+                    </div>
+                    <div class="manual-input-row" id="mainGameManualRow">
+                        <input type="text" id="mainGameManual" placeholder="请输入主要游戏名称" />
+                        <button type="button" class="btn-cancel" id="mainGameManualCancel">取消</button>
+                    </div>
+                </div>
+
+                <!-- 你也玩的游戏 -->
+                <div class="form-group">
+                    <label><i class="fas fa-plus-circle"></i> 你也玩的游戏</label>
+                    <div class="tag-section">
+                        <div class="tag-preset-row">
+                            <select id="alsoPreset">
+                                <option value="">— 选择预设 —</option>
+                                <option value="恐鬼症（Phasmophobia）">恐鬼症（Phasmophobia）</option>
+                                <option value="幽灵观察者">幽灵观察者</option>
+                                <option value="逃生：试炼">逃生：试炼</option>
+                                <option value="逃离后室（Inside the Backrooms）">逃离后室（Inside the Backrooms）</option>
+                                <option value="森林">森林</option>
+                                <option value="森林之子">森林之子</option>
+                                <option value="roblox">roblox</option>
+                                <option value="鬼魂">鬼魂</option>
+                                <option value="R.E.P.O.">R.E.P.O.</option>
+                                <option value="安抚">安抚</option>
+                                <option value="致命公司">致命公司</option>
+                                <option value="前方高能">前方高能</option>
+                                <option value="玩具熊的午夜后宫">玩具熊的午夜后宫</option>
+                                <option value="吞噬">吞噬</option>
+                                <option value="笼子">笼子</option>
+                                <option value="未知计划（Project Unknown）">未知计划（Project Unknown）</option>
+                                <option value="幽霾（Obscure）">幽霾（Obscure）</option>
+                                <option value="猜猜我是谁">猜猜我是谁</option>
+                            </select>
+                            <button type="button" class="btn-add-preset" id="alsoPresetAdd">添加</button>
+                            <span class="tag-preset-hint">选择后点击添加</span>
+                        </div>
+                        <div class="tag-input-wrapper" id="alsoTagWrapper">
+                            <div id="alsoTagContainer" style="display:flex;flex-wrap:wrap;gap:6px;align-items:center;"></div>
+                            <input type="text" class="tag-input" id="alsoInput" placeholder="或手动输入，按回车添加" />
+                            <button type="button" class="tag-add-btn" id="alsoAddBtn"><i class="fas fa-plus"></i> 添加</button>
+                        </div>
+                    </div>
+                    <input type="hidden" id="alsoHidden" value="[]" />
+                </div>
+
+                <!-- 你想玩什么游戏 -->
+                <div class="form-group">
+                    <label><i class="fas fa-rocket"></i> 你想玩什么游戏</label>
+                    <div class="tag-section">
+                        <div class="tag-preset-row">
+                            <select id="wantPreset">
+                                <option value="">— 选择预设 —</option>
+                                <option value="恐鬼症（Phasmophobia）">恐鬼症（Phasmophobia）</option>
+                                <option value="幽灵观察者">幽灵观察者</option>
+                                <option value="逃生：试炼">逃生：试炼</option>
+                                <option value="逃离后室（Inside the Backrooms）">逃离后室（Inside the Backrooms）</option>
+                                <option value="森林">森林</option>
+                                <option value="森林之子">森林之子</option>
+                                <option value="roblox">roblox</option>
+                                <option value="鬼魂">鬼魂</option>
+                                <option value="R.E.P.O.">R.E.P.O.</option>
+                                <option value="安抚">安抚</option>
+                                <option value="致命公司">致命公司</option>
+                                <option value="前方高能">前方高能</option>
+                                <option value="玩具熊的午夜后宫">玩具熊的午夜后宫</option>
+                                <option value="吞噬">吞噬</option>
+                                <option value="笼子">笼子</option>
+                                <option value="未知计划（Project Unknown）">未知计划（Project Unknown）</option>
+                                <option value="幽霾（Obscure）">幽霾（Obscure）</option>
+                                <option value="猜猜我是谁">猜猜我是谁</option>
+                            </select>
+                            <button type="button" class="btn-add-preset" id="wantPresetAdd">添加</button>
+                            <span class="tag-preset-hint">选择后点击添加</span>
+                        </div>
+                        <div class="tag-input-wrapper" id="wantTagWrapper">
+                            <div id="wantTagContainer" style="display:flex;flex-wrap:wrap;gap:6px;align-items:center;"></div>
+                            <input type="text" class="tag-input" id="wantInput" placeholder="或手动输入，按回车添加" />
+                            <button type="button" class="tag-add-btn" id="wantAddBtn"><i class="fas fa-plus"></i> 添加</button>
+                        </div>
+                    </div>
+                    <input type="hidden" id="wantHidden" value="[]" />
+                </div>
+
+                <!-- 在线时间 -->
+                <div class="form-group">
+                    <label><i class="fas fa-clock"></i> 在线时间</label>
+                    <select id="onlineTimeType">
+                        <option value="早上" title="起床就能玩">早上</option>
+                        <option value="下午" title="我得睡到下午">下午</option>
+                        <option value="晚上" title="要忙工作啊T.T">晚上</option>
+                        <option value="夜猫子" title="我只会在夜间出没">夜猫子</option>
+                        <option value="自定义">自定义</option>
+                    </select>
+                    <div class="online-custom" id="onlineCustomWrap">
+                        <input type="text" id="onlineTimeCustom" placeholder="例如：12:00-18:00" pattern="^\d{1,2}:\d{2}\s*-\s*\d{1,2}:\d{2}$" title="请按格式填写，例如 12:00-18:00" />
+                        <span>格式：开始时间-结束时间，如 12:00-18:00（24小时制）</span>
+                    </div>
+                </div>
+
+                <!-- 游戏时长 -->
+                <div class="form-group">
+                    <label><i class="fas fa-hourglass-half"></i> 游戏时长</label>
+                    <select id="duration">
+                        <option value="0-100">0-100 小时</option>
+                        <option value="100-200">100-200 小时</option>
+                        <option value="200-500">200-500 小时</option>
+                        <option value="500+">500+ 小时</option>
+                    </select>
+                </div>
+
+                <!-- 你的水平 + 期望水平 -->
+                <div class="level-row">
+                    <div class="form-group level-group">
+                        <label><i class="fas fa-star"></i> 你的水平</label>
+                        <div class="level-selector" id="levelSelector">
+                            <div class="level-option" data-level="萌新">萌新</div>
+                            <div class="level-option" data-level="普通">普通</div>
+                            <div class="level-option" data-level="高手">高手</div>
+                            <div class="level-option" data-level="大手子">大手子</div>
+                        </div>
+                        <input type="hidden" id="level" value="萌新" />
+                    </div>
+
+                    <div class="form-group expect-level-group">
+                        <label><i class="fas fa-users"></i> 你希望一起游玩的玩家水平</label>
+                        <div class="expect-level-selector" id="expectedLevelSelector">
+                            <div class="expect-level-option" data-level="萌新">萌新</div>
+                            <div class="expect-level-option" data-level="普通">普通</div>
+                            <div class="expect-level-option" data-level="高手">高手</div>
+                            <div class="expect-level-option" data-level="大手子">大手子</div>
+                        </div>
+                        <input type="hidden" id="expectedLevelsHidden" value="[]" />
+                    </div>
+                </div>
+
+                <!-- 推荐游戏 -->
+                <div class="form-group" style="grid-column:1/-1;">
+                    <label><i class="fas fa-heart"></i> 推荐游戏 <span style="font-weight:400;text-transform:none;color:#636366;">(最多3款)</span></label>
+                    <div class="tag-section">
+                        <div class="tag-preset-row">
+                            <select id="recommendPreset">
+                                <option value="">— 选择推荐游戏 —</option>
+                                <option value="恐鬼症（Phasmophobia）">恐鬼症（Phasmophobia）</option>
+                                <option value="幽灵观察者">幽灵观察者</option>
+                                <option value="逃生：试炼">逃生：试炼</option>
+                                <option value="逃离后室（Inside the Backrooms）">逃离后室（Inside the Backrooms）</option>
+                                <option value="森林">森林</option>
+                                <option value="森林之子">森林之子</option>
+                                <option value="roblox">roblox</option>
+                                <option value="鬼魂">鬼魂</option>
+                                <option value="R.E.P.O.">R.E.P.O.</option>
+                                <option value="安抚">安抚</option>
+                                <option value="致命公司">致命公司</option>
+                                <option value="前方高能">前方高能</option>
+                                <option value="玩具熊的午夜后宫">玩具熊的午夜后宫</option>
+                                <option value="吞噬">吞噬</option>
+                                <option value="笼子">笼子</option>
+                                <option value="未知计划（Project Unknown）">未知计划（Project Unknown）</option>
+                                <option value="幽霾（Obscure）">幽霾（Obscure）</option>
+                                <option value="猜猜我是谁">猜猜我是谁</option>
+                            </select>
+                            <button type="button" class="btn-add-preset" id="recommendPresetAdd">添加</button>
+                            <span class="tag-preset-hint" id="recommendRemainHint">还可推荐 3 款</span>
+                        </div>
+                        <div class="tag-input-wrapper" id="recommendTagWrapper">
+                            <div id="recommendTagContainer" style="display:flex;flex-wrap:wrap;gap:6px;align-items:center;"></div>
+                            <input type="text" class="tag-input" id="recommendInput" placeholder="或手动输入，按回车添加" />
+                            <button type="button" class="tag-add-btn" id="recommendAddBtn"><i class="fas fa-plus"></i> 添加</button>
+                        </div>
+                    </div>
+                    <input type="hidden" id="recommendHidden" value="[]" />
+                </div>
+
+                <!-- 按钮 -->
+                <div class="form-actions">
+                    <button type="submit" class="btn btn-primary" id="submitBtn"><i class="fas fa-save"></i> 登记</button>
+                    <button type="reset" class="btn btn-secondary" id="resetBtn"><i class="fas fa-undo"></i> 重置</button>
+                    <span id="editHint"><i class="fas fa-pen"></i> 正在编辑... <a href="#" id="cancelEdit">取消</a></span>
+                </div>
+            </div>
+        </form>
+    </section>
+
+    <!-- ===== 统计 ===== -->
+    <section class="card">
+        <div class="card-title"><i class="fas fa-chart-pie"></i> <span>📊 统计</span></div>
+        <div class="stats-grid" id="statsGrid">
+            <div class="stat-item"><div class="stat-number gradient-blue" id="totalCount">0</div><div class="stat-label">总人数</div></div>
+            <div class="stat-item"><div class="stat-number gradient-green" id="mengxinCount">0</div><div class="stat-label">萌新</div></div>
+            <div class="stat-item"><div class="stat-number gradient-blue" id="putongCount">0</div><div class="stat-label">普通</div></div>
+            <div class="stat-item"><div class="stat-number gradient-orange" id="gaoshouCount">0</div><div class="stat-label">高手</div></div>
+            <div class="stat-item"><div class="stat-number gradient-pink" id="dashouziCount">0</div><div class="stat-label">大手子</div></div>
+            <div class="stat-item"><div class="stat-number gradient-purple" id="gameCount">0</div><div class="stat-label">游戏种类</div></div>
+        </div>
+    </section>
+
+    <!-- ===== 推荐榜单 ===== -->
+    <section class="card">
+        <div class="card-title"><i class="fas fa-trophy"></i> <span>🏆 推荐游戏榜单</span> <span style="font-size:0.7rem;font-weight:400;color:#636366;margin-left:auto;">按票数排序</span></div>
+        <div id="rankList" class="rank-list"></div>
+        <div id="rankEmpty" class="empty-state" style="display:none;padding:16px 0;"><i class="fas fa-heart" style="font-size:1.8rem;"></i><p>暂无推荐，快来推荐你喜欢的游戏吧！</p></div>
+    </section>
+
+    <!-- ===== 搭子列表 ===== -->
+    <section class="card">
+        <div class="card-title"><i class="fas fa-table"></i> <span>👥 搭子列表</span> <span style="font-size:0.7rem;font-weight:400;color:#636366;margin-left:auto;" id="recordCount">共 0 条</span></div>
+
+        <div class="list-controls">
+            <label>每页显示
+                <select id="pageSizeSelect">
+                    <option value="5">5</option>
+                    <option value="10" selected>10</option>
+                    <option value="15">15</option>
+                </select>
+            </label>
+            <div class="search-box">
+                <i class="fas fa-search" style="color:#636366;"></i>
+                <input type="text" id="searchInput" placeholder="搜索用户名 / 游戏..." />
+            </div>
+            <div class="filter-group">
+                <select id="filterGame"><option value="">全部游戏</option></select>
+                <select id="filterLevel"><option value="">全部水平</option><option value="萌新">萌新</option><option value="普通">普通</option><option value="高手">高手</option><option value="大手子">大手子</option></select>
+                <select id="filterDuration"><option value="">全部时长</option><option value="0-100">0-100h</option><option value="100-200">100-200h</option><option value="200-500">200-500h</option><option value="500+">500+h</option></select>
+                <select id="filterVoice"><option value="">全部语音</option><option value="KOOK">KOOK</option><option value="OOPZ">OOPZ</option><option value="群语音">群语音</option></select>
+                <span class="clear-filters" id="clearFilters"><i class="fas fa-times-circle"></i> 清除</span>
+            </div>
+        </div>
+
+        <div class="table-wrapper">
+            <table>
+                <thead>
+                    <tr>
+                        <th>#</th>
+                        <th>用户名</th>
+                        <th>主要游戏</th>
+                        <th>在线时间</th>
+                        <th>语音方式</th>
+                        <th>更多信息</th>
+                        <th style="text-align:center;">操作</th>
+                    </tr>
+                </thead>
+                <tbody id="tableBody"></tbody>
+            </table>
+        </div>
+        <div id="emptyState" class="empty-state" style="display:none;"><i class="fas fa-users-slash"></i><p>暂无搭子，快来登记吧！</p></div>
+
+        <div class="pagination" id="paginationControls"></div>
+    </section>
+
+    <div class="footer"><i class="fas fa-copyright"></i> 网页解释权归 玩一辈子恐游的宝儿姐 所有</div>
+</div>
+
+<!-- ===== Toast ===== -->
+<div id="toast" class="toast"><i class="fas fa-check-circle"></i><span id="toastMessage">操作成功</span></div>
+
+<script>
+    // ============================================================
+    // Firebase 配置 (请替换成您自己的配置)
+    // ============================================================
+    const firebaseConfig = {
+  apiKey: "AIzaSyDVYlQZHk2H7q6bt6yuaynH9pMorbgsOg4",
+  authDomain: "horror-buddy-c4c15.firebaseapp.com",
+  projectId: "horror-buddy-c4c15",
+  storageBucket: "horror-buddy-c4c15.firebasestorage.app",
+  messagingSenderId: "773248848063",
+  appId: "1:773248848063:web:c7d18a1a6ed08bfb38b60a"
+};
+
+    // 检查配置是否被替换
+    if (firebaseConfig.apiKey === "YOUR_API_KEY") {
+        alert("⚠️ 请先替换 Firebase 配置！\n在代码中找到 firebaseConfig 对象，填入您自己的项目配置。");
+    }
+
+    // 初始化 Firebase
+    try {
+        firebase.initializeApp(firebaseConfig);
+    } catch (e) {
+        console.error("Firebase 初始化失败:", e);
+        alert("Firebase 初始化失败，请检查配置是否正确。");
+    }
+    const database = firebase.database();
+    const playersRef = database.ref('players');
+
+    // ============================================================
+    // DOM 引用
+    // ============================================================
+    const form = document.getElementById('playerForm');
+    const usernameInput = document.getElementById('username');
+    const voiceSelect = document.getElementById('voiceSoftware');
+    const onlineTimeType = document.getElementById('onlineTimeType');
+    const onlineTimeCustom = document.getElementById('onlineTimeCustom');
+    const onlineCustomWrap = document.getElementById('onlineCustomWrap');
+    const durationSelect = document.getElementById('duration');
+
+    const mainGameSelect = document.getElementById('mainGame');
+    const mainGamePresetRow = document.getElementById('mainGamePresetRow');
+    const mainGameManualRow = document.getElementById('mainGameManualRow');
+    const mainGameManual = document.getElementById('mainGameManual');
+    const mainGamePresetAdd = document.getElementById('mainGamePresetAdd');
+    const mainGameManualCancel = document.getElementById('mainGameManualCancel');
+
+    const alsoInput = document.getElementById('alsoInput');
+    const alsoAddBtn = document.getElementById('alsoAddBtn');
+    const alsoTagContainer = document.getElementById('alsoTagContainer');
+    const alsoHidden = document.getElementById('alsoHidden');
+    const alsoPreset = document.getElementById('alsoPreset');
+    const alsoPresetAdd = document.getElementById('alsoPresetAdd');
+
+    const wantInput = document.getElementById('wantInput');
+    const wantAddBtn = document.getElementById('wantAddBtn');
+    const wantTagContainer = document.getElementById('wantTagContainer');
+    const wantHidden = document.getElementById('wantHidden');
+    const wantPreset = document.getElementById('wantPreset');
+    const wantPresetAdd = document.getElementById('wantPresetAdd');
+
+    const recommendInput = document.getElementById('recommendInput');
+    const recommendAddBtn = document.getElementById('recommendAddBtn');
+    const recommendTagContainer = document.getElementById('recommendTagContainer');
+    const recommendHidden = document.getElementById('recommendHidden');
+    const recommendPreset = document.getElementById('recommendPreset');
+    const recommendPresetAdd = document.getElementById('recommendPresetAdd');
+    const recommendRemainHint = document.getElementById('recommendRemainHint');
+
+    const levelSelector = document.getElementById('levelSelector');
+    const levelInput = document.getElementById('level');
+
+    const expectedLevelSelector = document.getElementById('expectedLevelSelector');
+    const expectedLevelsHidden = document.getElementById('expectedLevelsHidden');
+
+    const submitBtn = document.getElementById('submitBtn');
+    const resetBtn = document.getElementById('resetBtn');
+    const formTitle = document.getElementById('formTitle');
+    const editHint = document.getElementById('editHint');
+    const cancelEditLink = document.getElementById('cancelEdit');
+
+    const tableBody = document.getElementById('tableBody');
+    const emptyState = document.getElementById('emptyState');
+    const recordCount = document.getElementById('recordCount');
+
+    const totalCount = document.getElementById('totalCount');
+    const mengxinCount = document.getElementById('mengxinCount');
+    const putongCount = document.getElementById('putongCount');
+    const gaoshouCount = document.getElementById('gaoshouCount');
+    const dashouziCount = document.getElementById('dashouziCount');
+    const gameCount = document.getElementById('gameCount');
+
+    const rankList = document.getElementById('rankList');
+    const rankEmpty = document.getElementById('rankEmpty');
+
+    const searchInput = document.getElementById('searchInput');
+    const filterGame = document.getElementById('filterGame');
+    const filterLevel = document.getElementById('filterLevel');
+    const filterDuration = document.getElementById('filterDuration');
+    const filterVoice = document.getElementById('filterVoice');
+    const clearFiltersBtn = document.getElementById('clearFilters');
+
+    const pageSizeSelect = document.getElementById('pageSizeSelect');
+    const paginationControls = document.getElementById('paginationControls');
+
+    const toast = document.getElementById('toast');
+    const toastMessage = document.getElementById('toastMessage');
+
+    // ============================================================
+    // 状态
+    // ============================================================
+    let playersData = {};
+    let editingId = null;
+    let toastTimer = null;
+
+    let alsoArray = [];
+    let wantArray = [];
+    let recommendArray = [];
+    let expectedLevels = [];
+
+    let currentPage = 1;
+    let pageSize = 10;
+    let filteredPlayers = [];
+
+    const STORAGE_KEY = 'horror_buddy_registered';
+    const USERNAME_KEY = 'horror_buddy_username';
+
+    // ============================================================
+    // 工具
+    // ============================================================
+    function showToast(message, type = 'success') {
+        if (toastTimer) clearTimeout(toastTimer);
+        toast.className = 'toast ' + type;
+        toastMessage.textContent = message;
+        const icon = toast.querySelector('i');
+        if (type === 'success') icon.className = 'fas fa-check-circle';
+        else if (type === 'error') icon.className = 'fas fa-exclamation-circle';
+        else icon.className = 'fas fa-info-circle';
+        toast.classList.add('show');
+        toastTimer = setTimeout(() => toast.classList.remove('show'), 2800);
+    }
+
+    function escapeHtml(str) {
+        if (!str) return '';
+        const div = document.createElement('div');
+        div.textContent = str;
+        return div.innerHTML;
+    }
+
+    function getCurrentUsername() {
+        return localStorage.getItem(USERNAME_KEY) || '';
+    }
+
+    function isRegistered() {
+        return localStorage.getItem(STORAGE_KEY) === 'true';
+    }
+
+    // ---------- 标签渲染 ----------
+    function renderTags(container, array, hiddenInput, maxItems) {
+        container.innerHTML = '';
+        array.forEach((item, idx) => {
+            const span = document.createElement('span');
+            span.className = 'tag-item';
+            span.innerHTML = `${escapeHtml(item)} <i class="fas fa-times-circle" data-idx="${idx}"></i>`;
+            container.appendChild(span);
+        });
+        container.querySelectorAll('.tag-item i').forEach(icon => {
+            icon.addEventListener('click', function(e) {
+                e.stopPropagation();
+                const idx = parseInt(this.dataset.idx);
+                array.splice(idx, 1);
+                if (hiddenInput) hiddenInput.value = JSON.stringify(array);
+                renderTags(container, array, hiddenInput, maxItems);
+                updateRecommendHint();
+            });
+        });
+        if (hiddenInput) hiddenInput.value = JSON.stringify(array);
+    }
+
+    function addTag(array, value, container, hiddenInput, maxItems) {
+        const trimmed = value.trim();
+        if (!trimmed) return false;
+        if (array.includes(trimmed)) { showToast('已存在', 'error'); return false; }
+        if (maxItems && array.length >= maxItems) { showToast(`最多推荐 ${maxItems} 款游戏`, 'error'); return false; }
+        array.push(trimmed);
+        renderTags(container, array, hiddenInput, maxItems);
+        updateRecommendHint();
+        return true;
+    }
+
+    function addPresetSingle(selectElem, array, container, hiddenInput, maxItems) {
+        const val = selectElem.value;
+        if (!val) { showToast('请选择一个游戏', 'error'); return; }
+        if (array.includes(val)) { showToast('已存在', 'error'); return; }
+        if (maxItems && array.length >= maxItems) { showToast(`最多推荐 ${maxItems} 款，已达上限`, 'error'); return; }
+        array.push(val);
+        renderTags(container, array, hiddenInput, maxItems);
+        updateRecommendHint();
+        selectElem.value = '';
+        showToast(`已添加「${val}」`, 'success');
+    }
+
+    function updateRecommendHint() {
+        if (recommendRemainHint) {
+            const remain = 3 - recommendArray.length;
+            recommendRemainHint.textContent = remain > 0 ? `还可推荐 ${remain} 款` : '已达上限';
+        }
+    }
+
+    // ---------- 期望水平 ----------
+    function renderExpectedLevels() {
+        const options = expectedLevelSelector.querySelectorAll('.expect-level-option');
+        options.forEach(el => {
+            const level = el.dataset.level;
+            el.classList.toggle('active', expectedLevels.includes(level));
+        });
+        expectedLevelsHidden.value = JSON.stringify(expectedLevels);
+    }
+
+    expectedLevelSelector.addEventListener('click', function(e) {
+        const option = e.target.closest('.expect-level-option');
+        if (!option) return;
+        const level = option.dataset.level;
+        if (expectedLevels.includes(level)) {
+            expectedLevels = expectedLevels.filter(l => l !== level);
+        } else {
+            expectedLevels.push(level);
+        }
+        renderExpectedLevels();
+    });
+
+    // ---------- 水平 ----------
+    function setLevel(level) {
+        const options = levelSelector.querySelectorAll('.level-option');
+        options.forEach(el => el.classList.toggle('active', el.dataset.level === level));
+        levelInput.value = level;
+    }
+
+    levelSelector.addEventListener('click', function(e) {
+        const option = e.target.closest('.level-option');
+        if (!option) return;
+        setLevel(option.dataset.level);
+    });
+
+    // ---------- 在线时间 ----------
+    onlineTimeType.addEventListener('change', function() {
+        if (this.value === '自定义') onlineCustomWrap.classList.add('show');
+        else onlineCustomWrap.classList.remove('show');
+        onlineTimeCustom.classList.remove('error');
+    });
+
+    onlineTimeCustom.addEventListener('blur', function() {
+        if (onlineTimeType.value === '自定义') {
+            const val = this.value.trim();
+            const regex = /^\d{1,2}:\d{2}\s*-\s*\d{1,2}:\d{2}$/;
+            if (val && !regex.test(val)) {
+                this.classList.add('error');
+                showToast('时间格式错误，请使用 12:00-18:00 格式', 'error');
+            } else {
+                this.classList.remove('error');
+            }
+        }
+    });
+
+    // ---------- 主要游戏 手动输入切换 ----------
+    function showManualInput() {
+        mainGamePresetRow.style.display = 'none';
+        mainGameManualRow.classList.add('show');
+        mainGameManual.focus();
+    }
+
+    function showPresetInput() {
+        mainGamePresetRow.style.display = 'flex';
+        mainGameManualRow.classList.remove('show');
+        mainGameManual.value = '';
+        mainGameSelect.value = '';
+    }
+
+    mainGameSelect.addEventListener('change', function() {
+        if (this.value === '__manual__') {
+            showManualInput();
+        }
+    });
+
+    mainGameManualCancel.addEventListener('click', function() {
+        showPresetInput();
+    });
+
+    mainGamePresetAdd.addEventListener('click', function() {
+        const val = mainGameSelect.value;
+        if (!val || val === '__manual__') {
+            showToast('请选择一个游戏', 'error');
+            return;
+        }
+        showToast(`已选择「${val}」`, 'success');
+    });
+
+    // ---------- 标签添加事件 ----------
+    alsoAddBtn.addEventListener('click', function() {
+        if (addTag(alsoArray, alsoInput.value, alsoTagContainer, alsoHidden)) {
+            alsoInput.value = '';
+            alsoInput.focus();
+        }
+    });
+    alsoInput.addEventListener('keydown', function(e) {
+        if (e.key === 'Enter') {
+            e.preventDefault();
+            if (addTag(alsoArray, alsoInput.value, alsoTagContainer, alsoHidden)) {
+                alsoInput.value = '';
+            }
+        }
+    });
+    alsoPresetAdd.addEventListener('click', function() {
+        addPresetSingle(alsoPreset, alsoArray, alsoTagContainer, alsoHidden);
+    });
+
+    wantAddBtn.addEventListener('click', function() {
+        if (addTag(wantArray, wantInput.value, wantTagContainer, wantHidden)) {
+            wantInput.value = '';
+            wantInput.focus();
+        }
+    });
+    wantInput.addEventListener('keydown', function(e) {
+        if (e.key === 'Enter') {
+            e.preventDefault();
+            if (addTag(wantArray, wantInput.value, wantTagContainer, wantHidden)) {
+                wantInput.value = '';
+            }
+        }
+    });
+    wantPresetAdd.addEventListener('click', function() {
+        addPresetSingle(wantPreset, wantArray, wantTagContainer, wantHidden);
+    });
+
+    recommendAddBtn.addEventListener('click', function() {
+        if (addTag(recommendArray, recommendInput.value, recommendTagContainer, recommendHidden, 3)) {
+            recommendInput.value = '';
+            recommendInput.focus();
+        }
+        updateRecommendHint();
+    });
+    recommendInput.addEventListener('keydown', function(e) {
+        if (e.key === 'Enter') {
+            e.preventDefault();
+            if (addTag(recommendArray, recommendInput.value, recommendTagContainer, recommendHidden, 3)) {
+                recommendInput.value = '';
+            }
+            updateRecommendHint();
+        }
+    });
+    recommendPresetAdd.addEventListener('click', function() {
+        addPresetSingle(recommendPreset, recommendArray, recommendTagContainer, recommendHidden, 3);
+        updateRecommendHint();
+    });
+
+    // ---------- Firebase 数据加载 ----------
+    function loadDataFromFirebase() {
+        playersRef.on('value', snapshot => {
+            const data = snapshot.val() || {};
+            playersData = data;
+            applyFiltersAndRender();
+        });
+    }
+
+    // ---------- 过滤、分页、渲染 ----------
+    function getFilteredPlayers() {
+        const keyword = searchInput.value.trim().toLowerCase();
+        const gameFilter = filterGame.value;
+        const levelFilter = filterLevel.value;
+        const durationFilter = filterDuration.value;
+        const voiceFilter = filterVoice.value;
+
+        const players = Object.values(playersData);
+        let filtered = players.filter(p => {
+            if (keyword) {
+                const matchName = (p.username || '').toLowerCase().includes(keyword);
+                const matchMain = (p.mainGame || '').toLowerCase().includes(keyword);
+                const matchAlso = (p.alsoGames || []).some(g => g.toLowerCase().includes(keyword));
+                if (!matchName && !matchMain && !matchAlso) return false;
+            }
+            if (gameFilter) {
+                const mainMatch = p.mainGame === gameFilter;
+                const alsoMatch = (p.alsoGames || []).includes(gameFilter);
+                if (!mainMatch && !alsoMatch) return false;
+            }
+            if (levelFilter && p.level !== levelFilter) return false;
+            if (durationFilter && p.duration !== durationFilter) return false;
+            if (voiceFilter && p.voiceSoftware !== voiceFilter) return false;
+            return true;
+        });
+        return filtered;
+    }
+
+    function applyFiltersAndRender() {
+        filteredPlayers = getFilteredPlayers();
+        // 更新筛选下拉
+        const allGames = new Set();
+        Object.values(playersData).forEach(p => {
+            if (p.mainGame) allGames.add(p.mainGame);
+            (p.alsoGames || []).forEach(g => allGames.add(g));
+        });
+        const currentGameFilter = filterGame.value;
+        filterGame.innerHTML = '<option value="">全部游戏</option>';
+        Array.from(allGames).sort().forEach(g => {
+            const opt = document.createElement('option');
+            opt.value = g;
+            opt.textContent = g;
+            filterGame.appendChild(opt);
+        });
+        if (currentGameFilter && allGames.has(currentGameFilter)) filterGame.value = currentGameFilter;
+        else filterGame.value = '';
+
+        const total = filteredPlayers.length;
+        recordCount.textContent = `共 ${total} 条`;
+        if (total === 0) {
+            emptyState.style.display = 'block';
+            tableBody.innerHTML = '';
+            paginationControls.innerHTML = '';
+            updateStatsAndRank();
+            return;
+        }
+        emptyState.style.display = 'none';
+
+        const totalPages = Math.ceil(total / pageSize);
+        if (currentPage > totalPages) currentPage = totalPages;
+        if (currentPage < 1) currentPage = 1;
+        const start = (currentPage - 1) * pageSize;
+        const end = Math.min(start + pageSize, total);
+        const pageData = filteredPlayers.slice(start, end);
+
+        let html = '';
+        pageData.forEach((p, idx) => {
+            const levelClass = { '萌新':'mengxin','普通':'putong','高手':'gaoshou','大手子':'dashouzi' } [p.level] || 'mengxin';
+            let onlineDisplay = p.onlineTimeType || '晚上';
+            if (onlineDisplay === '自定义') onlineDisplay = p.onlineTimeCustom || '自定义';
+            const mainGame = p.mainGame || '未设置';
+            const voice = p.voiceSoftware || '—';
+
+            const alsoStr = (p.alsoGames || []).map(g => `<span class="tag-badge">${escapeHtml(g)}</span>`).join(' ');
+            const wantStr = (p.wantGames || []).map(g => `<span class="tag-badge">${escapeHtml(g)}</span>`).join(' ');
+            const expectedStr = (p.expectedLevels || []).map(l => `<span class="level-badge ${levelClass}" style="background:rgba(255,255,255,0.04);color:#aeaeb2;">${escapeHtml(l)}</span>`).join(' ');
+            const recommendStr = (p.recommendedGames || []).map(g => `<span class="tag-badge">${escapeHtml(g)}</span>`).join(' ');
+            const moreInfo = `
+                <div class="info-row"><span class="info-label">水平</span><span class="info-value"><span class="level-badge ${levelClass}">${escapeHtml(p.level||'萌新')}</span></span></div>
+                <div class="info-row"><span class="info-label">也玩的游戏</span><span class="info-value">${alsoStr || '—'}</span></div>
+                <div class="info-row"><span class="info-label">想玩的游戏</span><span class="info-value">${wantStr || '—'}</span></div>
+                <div class="info-row"><span class="info-label">期望队友</span><span class="info-value">${expectedStr || '—'}</span></div>
+                <div class="info-row"><span class="info-label">推荐游戏</span><span class="info-value">${recommendStr || '—'}</span></div>
+                <div class="info-row"><span class="info-label">游戏时长</span><span class="info-value">${escapeHtml(p.duration||'—')}</span></div>
+            `;
+
+            const currentUser = getCurrentUsername();
+            const isOwn = (p.username === currentUser);
+
+            html += `
+                <tr>
+                    <td>${start + idx + 1}</td>
+                    <td><strong>${escapeHtml(p.username||'未命名')}</strong></td>
+                    <td>${escapeHtml(mainGame)}</td>
+                    <td>${escapeHtml(onlineDisplay)}</td>
+                    <td><span class="voice-badge">${escapeHtml(voice)}</span></td>
+                    <td>
+                        <button class="btn-sm more-btn" data-more-id="${p.id}"><i class="fas fa-chevron-down"></i></button>
+                        <div class="more-info" id="more-${p.id}">${moreInfo}</div>
+                    </td>
+                    <td style="text-align:center;">
+                        <div class="action-btns">
+                            ${isOwn ? `<button class="btn-sm btn-danger" data-action="delete" data-id="${p.id}"><i class="fas fa-trash"></i></button>` : ''}
+                        </div>
+                    </td>
+                </tr>
+            `;
+        });
+        tableBody.innerHTML = html;
+
+        tableBody.querySelectorAll('.more-btn').forEach(btn => {
+            btn.addEventListener('click', function() {
+                const id = this.dataset.moreId;
+                const info = document.getElementById(`more-${id}`);
+                if (info) {
+                    info.classList.toggle('show');
+                    this.classList.toggle('active');
+                    const icon = this.querySelector('i');
+                    if (icon) icon.classList.toggle('fa-chevron-down');
+                    if (icon) icon.classList.toggle('fa-chevron-up');
+                }
+            });
+        });
+
+        tableBody.querySelectorAll('[data-action="delete"]').forEach(btn => {
+            btn.addEventListener('click', function() {
+                deletePlayer(this.dataset.id);
+            });
+        });
+
+        renderPagination(totalPages);
+        updateStatsAndRank();
+    }
+
+    function renderPagination(totalPages) {
+        paginationControls.innerHTML = '';
+        if (totalPages <= 1) return;
+
+        const prevBtn = document.createElement('button');
+        prevBtn.textContent = '‹';
+        prevBtn.disabled = currentPage === 1;
+        prevBtn.addEventListener('click', () => {
+            if (currentPage > 1) { currentPage--; applyFiltersAndRender(); }
+        });
+        paginationControls.appendChild(prevBtn);
+
+        const maxVisible = 5;
+        let startPage = Math.max(1, currentPage - Math.floor(maxVisible / 2));
+        let endPage = Math.min(totalPages, startPage + maxVisible - 1);
+        if (endPage - startPage + 1 < maxVisible) startPage = Math.max(1, endPage - maxVisible + 1);
+
+        for (let i = startPage; i <= endPage; i++) {
+            const btn = document.createElement('button');
+            btn.textContent = i;
+            if (i === currentPage) btn.classList.add('active');
+            btn.addEventListener('click', () => {
+                currentPage = i;
+                applyFiltersAndRender();
+            });
+            paginationControls.appendChild(btn);
+        }
+
+        const nextBtn = document.createElement('button');
+        nextBtn.textContent = '›';
+        nextBtn.disabled = currentPage === totalPages;
+        nextBtn.addEventListener('click', () => {
+            if (currentPage < totalPages) { currentPage++; applyFiltersAndRender(); }
+        });
+        paginationControls.appendChild(nextBtn);
+    }
+
+    function updateStatsAndRank() {
+        const players = Object.values(playersData);
+        const total = players.length;
+        totalCount.textContent = total;
+        let m = 0, p = 0, g = 0, d = 0;
+        const gameSet = new Set();
+        players.forEach(player => {
+            const level = player.level || '萌新';
+            if (level === '萌新') m++;
+            else if (level === '普通') p++;
+            else if (level === '高手') g++;
+            else if (level === '大手子') d++;
+            if (player.mainGame) gameSet.add(player.mainGame);
+            (player.alsoGames || []).forEach(gm => gameSet.add(gm));
+        });
+        mengxinCount.textContent = m;
+        putongCount.textContent = p;
+        gaoshouCount.textContent = g;
+        dashouziCount.textContent = d;
+        gameCount.textContent = gameSet.size;
+
+        const voteMap = new Map();
+        players.forEach(p => {
+            (p.recommendedGames || []).forEach(game => {
+                voteMap.set(game, (voteMap.get(game) || 0) + 1);
+            });
+        });
+        const sorted = Array.from(voteMap.entries()).sort((a, b) => b[1] - a[1]);
+        rankList.innerHTML = '';
+        if (sorted.length === 0) {
+            rankEmpty.style.display = 'block';
+        } else {
+            rankEmpty.style.display = 'none';
+            sorted.forEach(([game, votes]) => {
+                const div = document.createElement('div');
+                div.className = 'rank-item';
+                div.innerHTML = `<span class="rank-game">${escapeHtml(game)}</span><span class="rank-votes">${votes} 票</span>`;
+                rankList.appendChild(div);
+            });
+        }
+    }
+
+    // ---------- 删除 ----------
+    function deletePlayer(id) {
+        const player = playersData[id];
+        if (!player) return;
+        const currentUser = getCurrentUsername();
+        if (player.username !== currentUser) {
+            showToast('无权删除他人的记录', 'error');
+            return;
+        }
+        if (!confirm(`删除「${player.username}」的登记？`)) return;
+        playersRef.child(id).remove();
+        showToast(`已删除 ${player.username}`, 'info');
+        if (editingId === id) cancelEdit();
+    }
+
+    // ---------- 编辑取消 ----------
+    function cancelEdit() {
+        editingId = null;
+        formTitle.textContent = '📝 登记你的游戏信息';
+        submitBtn.innerHTML = '<i class="fas fa-save"></i> 登记';
+        editHint.style.display = 'none';
+        form.reset();
+        alsoArray = [];
+        renderTags(alsoTagContainer, alsoArray, alsoHidden);
+        wantArray = [];
+        renderTags(wantTagContainer, wantArray, wantHidden);
+        recommendArray = [];
+        renderTags(recommendTagContainer, recommendArray, recommendHidden, 3);
+        updateRecommendHint();
+        setLevel('萌新');
+        expectedLevels = [];
+        renderExpectedLevels();
+        onlineCustomWrap.classList.remove('show');
+        onlineTimeCustom.value = '';
+        onlineTimeCustom.classList.remove('error');
+        showPresetInput();
+    }
+
+    // ---------- 重置表单（工具函数） ----------
+    function resetFormFields() {
+        form.reset();
+        alsoArray = [];
+        renderTags(alsoTagContainer, alsoArray, alsoHidden);
+        wantArray = [];
+        renderTags(wantTagContainer, wantArray, wantHidden);
+        recommendArray = [];
+        renderTags(recommendTagContainer, recommendArray, recommendHidden, 3);
+        updateRecommendHint();
+        setLevel('萌新');
+        expectedLevels = [];
+        renderExpectedLevels();
+        onlineCustomWrap.classList.remove('show');
+        onlineTimeCustom.value = '';
+        onlineTimeCustom.classList.remove('error');
+        showPresetInput();
+    }
+
+    // ---------- 表单提交 ----------
+    form.addEventListener('submit', function(e) {
+        e.preventDefault();
+
+        const username = usernameInput.value.trim();
+        if (!username) { showToast('请输入用户名', 'error'); usernameInput.focus(); return; }
+
+        let mainGame = mainGameSelect.value;
+        if (mainGame === '__manual__') {
+            mainGame = mainGameManual.value.trim();
+            if (!mainGame) { showToast('请手动输入主要游戏名称', 'error'); mainGameManual.focus(); return; }
+        } else if (!mainGame) {
+            showToast('请选择或输入主要游戏', 'error'); mainGameSelect.focus(); return;
+        }
+
+        const existing = Object.values(playersData).find(p => p.username === username);
+        if (existing && !editingId) {
+            showToast(`用户名 "${username}" 已被登记，请勿重复提交`, 'error');
+            return;
+        }
+
+        const onlineTimeTypeVal = onlineTimeType.value;
+        let onlineTimeCustomVal = '';
+        if (onlineTimeTypeVal === '自定义') {
+            onlineTimeCustomVal = onlineTimeCustom.value.trim();
+            const regex = /^\d{1,2}:\d{2}\s*-\s*\d{1,2}:\d{2}$/;
+            if (!regex.test(onlineTimeCustomVal)) {
+                showToast('自定义时间格式错误，请使用 12:00-18:00 格式', 'error');
+                onlineTimeCustom.focus();
+                return;
+            }
+        }
+
+        const data = {
+            username: username,
+            voiceSoftware: voiceSelect.value,
+            mainGame: mainGame,
+            alsoGames: alsoArray.slice(),
+            wantGames: wantArray.slice(),
+            onlineTimeType: onlineTimeTypeVal,
+            onlineTimeCustom: onlineTimeCustomVal,
+            duration: durationSelect.value,
+            level: levelInput.value,
+            recommendedGames: recommendArray.slice(),
+            expectedLevels: expectedLevels.slice(),
+        };
+
+        const newId = Date.now().toString(36) + '_' + Math.random().toString(36).substr(2, 6);
+        playersRef.child(newId).set(data)
+            .then(() => {
+                localStorage.setItem(STORAGE_KEY, 'true');
+                localStorage.setItem(USERNAME_KEY, username);
+                document.getElementById('formCard').style.display = 'none';
+                showToast(`🎉 ${username} 登记成功`, 'success');
+                resetFormFields(); // 重置所有字段
+            })
+            .catch(err => {
+                showToast('保存失败: ' + err.message, 'error');
+                resetFormFields(); // 失败也重置，但卡片保持可见
+            });
+    });
+
+    // ---------- 重置按钮 ----------
+    resetBtn.addEventListener('click', function(e) {
+        e.preventDefault();
+        if (editingId) {
+            if (!confirm('取消编辑并重置？')) return;
+            cancelEdit();
+        } else {
+            resetFormFields();
+            showToast('已重置', 'info');
+        }
+    });
+
+    cancelEditLink.addEventListener('click', function(e) { e.preventDefault(); cancelEdit(); });
+
+    // ---------- 搜索 & 筛选 ----------
+    searchInput.addEventListener('input', function() { currentPage = 1; applyFiltersAndRender(); });
+    filterGame.addEventListener('change', function() { currentPage = 1; applyFiltersAndRender(); });
+    filterLevel.addEventListener('change', function() { currentPage = 1; applyFiltersAndRender(); });
+    filterDuration.addEventListener('change', function() { currentPage = 1; applyFiltersAndRender(); });
+    filterVoice.addEventListener('change', function() { currentPage = 1; applyFiltersAndRender(); });
+    clearFiltersBtn.addEventListener('click', function() {
+        searchInput.value = '';
+        filterGame.value = '';
+        filterLevel.value = '';
+        filterDuration.value = '';
+        filterVoice.value = '';
+        currentPage = 1;
+        applyFiltersAndRender();
+        showToast('已清除筛选', 'info');
+    });
+    pageSizeSelect.addEventListener('change', function() {
+        pageSize = parseInt(this.value);
+        currentPage = 1;
+        applyFiltersAndRender();
+    });
+
+    // ---------- 键盘 ----------
+    document.addEventListener('keydown', function(e) {
+        if (e.ctrlKey && e.key === 'f') { e.preventDefault(); searchInput.focus(); }
+        if (e.key === 'Escape' && editingId) cancelEdit();
+    });
+
+    // ---------- 初始化 ----------
+    function init() {
+        if (isRegistered()) {
+            document.getElementById('formCard').style.display = 'none';
+        }
+
+        setLevel('萌新');
+        expectedLevels = [];
+        renderExpectedLevels();
+        alsoArray = [];
+        renderTags(alsoTagContainer, alsoArray, alsoHidden);
+        wantArray = [];
+        renderTags(wantTagContainer, wantArray, wantHidden);
+        recommendArray = [];
+        renderTags(recommendTagContainer, recommendArray, recommendHidden, 3);
+        updateRecommendHint();
+        showPresetInput();
+
+        loadDataFromFirebase();
+
+        setTimeout(() => {
+            applyFiltersAndRender();
+        }, 300);
+
+        showToast('👋 登记你的游戏信息，找到恐游搭子吧！', 'info');
+    }
+
+    init();
+</script>
+</body>
+</html>
