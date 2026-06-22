@@ -100,6 +100,54 @@
         .channel-links a.kook i { color: #5865F2; }
         .channel-links a.oopz i { color: #00C7B1; }
 
+        /* ===== 重新登记区块 ===== */
+        .reset-section {
+            background: rgba(255,69,58,0.08);
+            border: 1px solid rgba(255,69,58,0.2);
+            border-radius: 16px;
+            padding: 16px 20px;
+            margin-bottom: 20px;
+            display: none;
+            align-items: center;
+            justify-content: space-between;
+            flex-wrap: wrap;
+            gap: 12px;
+        }
+        .reset-section.show {
+            display: flex;
+        }
+        .reset-section .reset-text {
+            color: #f5f5f7;
+            font-size: 0.95rem;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+        .reset-section .reset-text i {
+            color: #ff453a;
+        }
+        .reset-section .btn-reset {
+            background: rgba(255,69,58,0.2);
+            border: none;
+            border-radius: 30px;
+            padding: 8px 24px;
+            font-size: 0.9rem;
+            font-weight: 600;
+            color: #ff453a;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            font-family: inherit;
+            touch-action: manipulation;
+            min-height: 44px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+        .reset-section .btn-reset:active { transform: scale(0.96); }
+        .reset-section .btn-reset:hover {
+            background: rgba(255,69,58,0.3);
+        }
+
         /* ===== 表单 ===== */
         .form-grid {
             display: grid;
@@ -221,7 +269,7 @@
         }
         .manual-row .btn-cancel:active { transform: scale(0.96); }
 
-        /* ===== 标签容器（显示已选游戏） ===== */
+        /* ===== 标签容器 ===== */
         .tag-container {
             display: flex;
             flex-wrap: wrap;
@@ -289,7 +337,7 @@
             box-shadow: 0 2px 12px rgba(0,122,255,0.25);
         }
 
-        /* ===== 在线时间自定义（掩码常驻） ===== */
+        /* ===== 在线时间自定义 ===== */
         .online-custom {
             margin-top: 4px;
             display: none;
@@ -741,12 +789,14 @@
             .toast.show { transform: translateX(-50%) translateY(0); }
             .level-row { grid-template-columns: 1fr 1fr; }
             .list-controls { flex-wrap: nowrap; }
+            .reset-section { flex-wrap: nowrap; }
         }
         @media (max-width: 639px) {
             .form-grid { grid-template-columns: 1fr; }
             .level-row { grid-template-columns: 1fr; gap: 14px; }
             .level-group, .expect-level-group { grid-column: auto; }
             .preset-row { flex-wrap: nowrap; }
+            .reset-section { flex-direction: column; align-items: stretch; text-align: center; }
         }
     </style>
 </head>
@@ -764,7 +814,18 @@
         </div>
     </header>
 
-    <!-- ===== 登记卡片（始终可见） ===== -->
+    <!-- ===== 重新登记区块 ===== -->
+    <div class="reset-section" id="resetSection">
+        <div class="reset-text">
+            <i class="fas fa-info-circle"></i>
+            你已经提交过信息，是否想要重新登记？
+        </div>
+        <button class="btn-reset" id="resetRegistrationBtn">
+            <i class="fas fa-redo"></i> 重新登记
+        </button>
+    </div>
+
+    <!-- ===== 登记卡片 ===== -->
     <section class="card" id="formCard">
         <div class="card-title"><i class="fas fa-pen-fancy"></i> <span id="formTitle">📝 登记你的游戏信息</span></div>
         <form id="playerForm" autocomplete="off">
@@ -839,7 +900,6 @@
                     </div>
                 </div>
 
-                <!-- 四个带下拉+手动输入的字段，两两并排 -->
                 <!-- 主要游戏 -->
                 <div class="form-group">
                     <label><i class="fas fa-gamepad"></i> 你主要玩的游戏</label>
@@ -983,11 +1043,10 @@
                     <input type="hidden" id="recommendGamesHidden" value="[]" />
                 </div>
 
-                <!-- 按钮区：新增“重新登记” -->
+                <!-- 按钮 -->
                 <div class="form-actions">
                     <button type="submit" class="btn btn-primary" id="submitBtn"><i class="fas fa-save"></i> 登记</button>
                     <button type="reset" class="btn btn-secondary" id="resetBtn"><i class="fas fa-undo"></i> 重置</button>
-                    <button type="button" class="btn btn-danger" id="resetRegistrationBtn"><i class="fas fa-redo"></i> 重新登记</button>
                     <span id="editHint"><i class="fas fa-pen"></i> 正在编辑... <a href="#" id="cancelEdit">取消</a></span>
                 </div>
             </div>
@@ -1080,7 +1139,6 @@
         appId: "1:773248848063:web:c7d18a1a6ed08bfb38b60a"
     };
 
-    // 检查配置
     if (!firebaseConfig.databaseURL || firebaseConfig.databaseURL === "") {
         alert("⚠️ 请检查 Firebase 配置，databaseURL 不能为空！");
     }
@@ -1108,7 +1166,6 @@
     const maskPlaceholder = document.getElementById('maskPlaceholder');
     const durationSelect = document.getElementById('duration');
 
-    // 主要游戏
     const mainGameSelect = document.getElementById('mainGame');
     const mainPresetRow = document.getElementById('mainPresetRow');
     const mainManualRow = document.getElementById('mainManualRow');
@@ -1116,7 +1173,6 @@
     const mainPresetAdd = document.getElementById('mainPresetAdd');
     const mainManualCancel = document.getElementById('mainManualCancel');
 
-    // 也玩的游戏
     const alsoGameSelect = document.getElementById('alsoGame');
     const alsoPresetRow = document.getElementById('alsoPresetRow');
     const alsoManualRow = document.getElementById('alsoManualRow');
@@ -1127,7 +1183,6 @@
     const alsoGamesHidden = document.getElementById('alsoGamesHidden');
     let alsoGamesArray = [];
 
-    // 你想玩的游戏
     const wantGameSelect = document.getElementById('wantGame');
     const wantPresetRow = document.getElementById('wantPresetRow');
     const wantManualRow = document.getElementById('wantManualRow');
@@ -1138,7 +1193,6 @@
     const wantGamesHidden = document.getElementById('wantGamesHidden');
     let wantGamesArray = [];
 
-    // 推荐游戏
     const recommendGameSelect = document.getElementById('recommendGame');
     const recommendPresetRow = document.getElementById('recommendPresetRow');
     const recommendManualRow = document.getElementById('recommendManualRow');
@@ -1160,6 +1214,7 @@
     const submitBtn = document.getElementById('submitBtn');
     const resetBtn = document.getElementById('resetBtn');
     const resetRegistrationBtn = document.getElementById('resetRegistrationBtn');
+    const resetSection = document.getElementById('resetSection');
     const formTitle = document.getElementById('formTitle');
     const editHint = document.getElementById('editHint');
     const cancelEditLink = document.getElementById('cancelEdit');
@@ -1194,10 +1249,7 @@
     // ============================================================
     // 状态
     // ============================================================
-    let playersData = {};
-    let editingId = null;
-    let toastTimer = null;
-
+    let playersData = []; // 存储所有玩家对象的数组，每条记录包含 username 和对应的 key
     let currentPage = 1;
     let pageSize = 10;
     let filteredPlayers = [];
@@ -1218,6 +1270,7 @@
         toast.classList.add('show');
         toastTimer = setTimeout(() => toast.classList.remove('show'), 2800);
     }
+    let toastTimer = null;
 
     function escapeHtml(str) {
         if (!str) return '';
@@ -1230,7 +1283,12 @@
         return localStorage.getItem(USERNAME_KEY) || '';
     }
 
-    // ---------- 标签渲染（显示已选游戏） ----------
+    // 编码用户名作为 Firebase key（处理特殊字符）
+    function encodeUserKey(username) {
+        return encodeURIComponent(username);
+    }
+
+    // ---------- 标签渲染 ----------
     function renderTags(container, array, hiddenInput, maxItems) {
         container.innerHTML = '';
         array.forEach((item, idx) => {
@@ -1289,14 +1347,12 @@
         return { showManual, showPreset };
     }
 
-    // 初始化各下拉+手动切换
     setupPresetManual(mainGameSelect, mainPresetRow, mainManualRow, mainManual, mainManualCancel);
     setupPresetManual(alsoGameSelect, alsoPresetRow, alsoManualRow, alsoManual, alsoManualCancel);
     setupPresetManual(wantGameSelect, wantPresetRow, wantManualRow, wantManual, wantManualCancel);
     setupPresetManual(recommendGameSelect, recommendPresetRow, recommendManualRow, recommendManual, recommendManualCancel);
 
-    // ---------- 添加按钮事件 ----------
-    // 主要游戏
+    // ---------- 添加按钮 ----------
     mainPresetAdd.addEventListener('click', function() {
         const val = mainGameSelect.value;
         if (!val || val === '__manual__') {
@@ -1306,7 +1362,6 @@
         showToast(`已选择「${val}」`, 'success');
     });
 
-    // 也玩的游戏
     alsoPresetAdd.addEventListener('click', function() {
         let val = alsoGameSelect.value;
         if (val === '__manual__') {
@@ -1335,7 +1390,6 @@
         }
     });
 
-    // 你想玩的游戏
     wantPresetAdd.addEventListener('click', function() {
         let val = wantGameSelect.value;
         if (val === '__manual__') {
@@ -1364,7 +1418,6 @@
         }
     });
 
-    // 推荐游戏
     recommendPresetAdd.addEventListener('click', function() {
         let val = recommendGameSelect.value;
         if (val === '__manual__') {
@@ -1443,7 +1496,6 @@
     });
 
     onlineTimeCustom.addEventListener('input', function() {
-        // 只保留数字
         let digits = this.value.replace(/\D/g, '');
         if (digits.length > 8) digits = digits.slice(0, 8);
         let formatted = '';
@@ -1453,7 +1505,6 @@
             formatted += digits[i];
         }
         this.value = formatted;
-        // 控制占位符显隐
         if (digits.length > 0) {
             maskPlaceholder.classList.add('hidden');
         } else {
@@ -1466,8 +1517,21 @@
         if (!firebaseInitialized) return;
         playersRef.on('value', snapshot => {
             const data = snapshot.val() || {};
-            playersData = data;
+            // 将对象转换为数组，每条记录包含 key 和所有字段
+            const playersArray = Object.entries(data).map(([key, value]) => {
+                // 解码 key 得到用户名
+                const username = decodeURIComponent(key);
+                return { ...value, username, _key: key };
+            });
+            playersData = playersArray;
             applyFiltersAndRender();
+            // 检查重新登记区块
+            const currentUser = getCurrentUsername();
+            if (currentUser && playersArray.some(p => p.username === currentUser)) {
+                resetSection.classList.add('show');
+            } else {
+                resetSection.classList.remove('show');
+            }
         });
     }
 
@@ -1479,8 +1543,7 @@
         const durationFilter = filterDuration.value;
         const voiceFilter = filterVoice.value;
 
-        const players = Object.values(playersData);
-        let filtered = players.filter(p => {
+        let filtered = playersData.filter(p => {
             if (keyword) {
                 const matchName = (p.username || '').toLowerCase().includes(keyword);
                 const matchMain = (p.mainGame || '').toLowerCase().includes(keyword);
@@ -1504,7 +1567,7 @@
         filteredPlayers = getFilteredPlayers();
         // 更新筛选下拉
         const allGames = new Set();
-        Object.values(playersData).forEach(p => {
+        playersData.forEach(p => {
             if (p.mainGame) allGames.add(p.mainGame);
             (p.alsoGames || []).forEach(g => allGames.add(g));
         });
@@ -1537,6 +1600,8 @@
         const end = Math.min(start + pageSize, total);
         const pageData = filteredPlayers.slice(start, end);
 
+        const currentUser = getCurrentUsername();
+
         let html = '';
         pageData.forEach((p, idx) => {
             const levelClass = { '萌新':'mengxin','普通':'putong','高手':'gaoshou','大手子':'dashouzi' } [p.level] || 'mengxin';
@@ -1558,8 +1623,9 @@
                 <div class="info-row"><span class="info-label">游戏时长</span><span class="info-value">${escapeHtml(p.duration||'—')}</span></div>
             `;
 
-            // 删除按钮：所有用户可见，但点击时验证用户名
-            const deleteBtn = `<button class="btn-sm btn-danger" data-action="delete" data-id="${p.id}"><i class="fas fa-trash"></i> 删除</button>`;
+            // 仅当记录的用户名与当前用户匹配时，才显示删除按钮
+            const isOwn = (p.username === currentUser);
+            const deleteBtn = isOwn ? `<button class="btn-sm btn-danger" data-action="delete" data-username="${p.username}"><i class="fas fa-trash"></i> 删除</button>` : '';
 
             html += `
                 <tr>
@@ -1569,8 +1635,8 @@
                     <td>${escapeHtml(onlineDisplay)}</td>
                     <td><span class="voice-badge">${escapeHtml(voice)}</span></td>
                     <td>
-                        <button class="btn-sm more-btn" data-more-id="${p.id}"><i class="fas fa-chevron-down"></i></button>
-                        <div class="more-info" id="more-${p.id}">${moreInfo}</div>
+                        <button class="btn-sm more-btn" data-more-id="${p._key}"><i class="fas fa-chevron-down"></i></button>
+                        <div class="more-info" id="more-${p._key}">${moreInfo}</div>
                     </td>
                     <td style="text-align:center;">
                         <div class="action-btns">
@@ -1585,8 +1651,8 @@
         // 更多信息
         tableBody.querySelectorAll('.more-btn').forEach(btn => {
             btn.addEventListener('click', function() {
-                const id = this.dataset.moreId;
-                const info = document.getElementById(`more-${id}`);
+                const key = this.dataset.moreId;
+                const info = document.getElementById(`more-${key}`);
                 if (info) {
                     info.classList.toggle('show');
                     this.classList.toggle('active');
@@ -1600,7 +1666,22 @@
         // 删除事件
         tableBody.querySelectorAll('[data-action="delete"]').forEach(btn => {
             btn.addEventListener('click', function() {
-                deletePlayer(this.dataset.id);
+                const username = this.dataset.username;
+                if (!username) return;
+                const currentUser = getCurrentUsername();
+                if (username !== currentUser) {
+                    showToast('无权删除他人记录', 'error');
+                    return;
+                }
+                if (!confirm(`确认删除「${username}」的记录吗？`)) return;
+                const userKey = encodeUserKey(username);
+                playersRef.child(userKey).remove().then(() => {
+                    localStorage.removeItem(USERNAME_KEY);
+                    resetSection.classList.remove('show');
+                    showToast(`已删除 ${username}`, 'info');
+                }).catch(err => {
+                    showToast('删除失败: ' + err.message, 'error');
+                });
             });
         });
 
@@ -1646,12 +1727,11 @@
     }
 
     function updateStatsAndRank() {
-        const players = Object.values(playersData);
-        const total = players.length;
+        const total = playersData.length;
         totalCount.textContent = total;
         let m = 0, p = 0, g = 0, d = 0;
         const gameSet = new Set();
-        players.forEach(player => {
+        playersData.forEach(player => {
             const level = player.level || '萌新';
             if (level === '萌新') m++;
             else if (level === '普通') p++;
@@ -1667,7 +1747,7 @@
         gameCount.textContent = gameSet.size;
 
         const voteMap = new Map();
-        players.forEach(p => {
+        playersData.forEach(p => {
             (p.recommendedGames || []).forEach(game => {
                 voteMap.set(game, (voteMap.get(game) || 0) + 1);
             });
@@ -1684,33 +1764,6 @@
                 div.innerHTML = `<span class="rank-game">${escapeHtml(game)}</span><span class="rank-votes">${votes} 票</span>`;
                 rankList.appendChild(div);
             });
-        }
-    }
-
-    // ---------- 删除（验证用户名） ----------
-    function deletePlayer(id) {
-        const player = playersData[id];
-        if (!player) return;
-
-        // 弹窗确认
-        if (!confirm(`确认删除「${player.username}」的记录吗？`)) return;
-
-        // 验证当前用户是否匹配
-        const currentUser = getCurrentUsername();
-        if (currentUser && currentUser === player.username) {
-            // 直接删除
-            playersRef.child(id).remove();
-            showToast(`已删除 ${player.username}`, 'info');
-        } else {
-            // 提示输入用户名
-            const inputName = prompt(`请输入该记录的用户名「${player.username}」以确认删除：`);
-            if (inputName === null) return; // 取消
-            if (inputName.trim() === player.username) {
-                playersRef.child(id).remove();
-                showToast(`已删除 ${player.username}`, 'info');
-            } else {
-                showToast('用户名不匹配，删除失败', 'error');
-            }
         }
     }
 
@@ -1738,17 +1791,25 @@
 
     // ---------- 重新登记 ----------
     resetRegistrationBtn.addEventListener('click', function() {
-        if (confirm('确认重新登记吗？这将清空当前表单并允许你重新填写。')) {
-            // 清除本地存储的用户名标记
-            localStorage.removeItem(USERNAME_KEY);
-            // 重置表单
-            resetFormFields();
-            showToast('已重置，可以重新登记', 'info');
+        const currentUser = getCurrentUsername();
+        if (!currentUser) {
+            showToast('未检测到您的登记信息', 'error');
+            return;
         }
+        if (!confirm('是否重新登记？这会删除掉你之前登记过的内容。')) return;
+        const userKey = encodeUserKey(currentUser);
+        playersRef.child(userKey).remove().then(() => {
+            localStorage.removeItem(USERNAME_KEY);
+            resetSection.classList.remove('show');
+            showToast(`已删除您的记录，可以重新登记`, 'success');
+            resetFormFields();
+        }).catch(err => {
+            showToast('删除失败: ' + err.message, 'error');
+        });
     });
 
     // ---------- 表单提交 ----------
-    form.addEventListener('submit', function(e) {
+    form.addEventListener('submit', async function(e) {
         e.preventDefault();
 
         if (!firebaseInitialized) {
@@ -1759,7 +1820,6 @@
         const username = usernameInput.value.trim();
         if (!username) { showToast('请输入用户名', 'error'); usernameInput.focus(); return; }
 
-        // 主要游戏
         let mainGame = mainGameSelect.value;
         if (mainGame === '__manual__') {
             mainGame = mainManual.value.trim();
@@ -1768,9 +1828,11 @@
             showToast('请选择或输入主要游戏', 'error'); mainGameSelect.focus(); return;
         }
 
-        // 检查用户名重复（防止同一用户名重复提交）
-        const existing = Object.values(playersData).find(p => p.username === username);
-        if (existing) {
+        // 检查用户名是否已存在（直接读取数据库，避免缓存问题）
+        const userKey = encodeUserKey(username);
+        const userRef = playersRef.child(userKey);
+        const snapshot = await userRef.once('value');
+        if (snapshot.exists()) {
             showToast(`用户名 "${username}" 已被登记，请勿重复提交`, 'error');
             return;
         }
@@ -1786,7 +1848,6 @@
                 onlineTimeCustom.focus();
                 return;
             }
-            // 校验小时分钟
             const parts = onlineTimeCustomVal.split('-');
             const start = parts[0].trim().split(':');
             const end = parts[1].trim().split(':');
@@ -1813,17 +1874,15 @@
             expectedLevels: expectedLevels.slice(),
         };
 
-        const newId = Date.now().toString(36) + '_' + Math.random().toString(36).substr(2, 6);
-        playersRef.child(newId).set(data)
-            .then(() => {
-                localStorage.setItem(USERNAME_KEY, username);
-                showToast(`🎉 ${username} 登记成功`, 'success');
-                resetFormFields();
-            })
-            .catch(err => {
-                showToast('保存失败: ' + err.message, 'error');
-                resetFormFields();
-            });
+        // 写入数据库（使用用户名作为key）
+        userRef.set(data).then(() => {
+            localStorage.setItem(USERNAME_KEY, username);
+            showToast(`🎉 ${username} 登记成功`, 'success');
+            resetFormFields();
+            resetSection.classList.add('show');
+        }).catch(err => {
+            showToast('保存失败: ' + err.message, 'error');
+        });
     });
 
     // ---------- 重置按钮 ----------
@@ -1858,7 +1917,6 @@
     // ---------- 键盘 ----------
     document.addEventListener('keydown', function(e) {
         if (e.ctrlKey && e.key === 'f') { e.preventDefault(); searchInput.focus(); }
-        if (e.key === 'Escape' && editingId) { /* 取消编辑（暂未使用） */ }
     });
 
     // ---------- 初始化 ----------
