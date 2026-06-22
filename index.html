@@ -100,7 +100,7 @@
         .channel-links a.kook i { color: #5865F2; }
         .channel-links a.oopz i { color: #00C7B1; }
 
-        /* ===== 重新登记区块 ===== */
+        /* ===== 顶部重新登记区块（仅“重新登记”按钮） ===== */
         .reset-section {
             background: rgba(255,69,58,0.08);
             border: 1px solid rgba(255,69,58,0.2);
@@ -118,7 +118,7 @@
         }
         .reset-section .reset-text {
             color: #f5f5f7;
-            font-size: 0.95rem;
+            font-size: 1rem;
             display: flex;
             align-items: center;
             gap: 8px;
@@ -139,13 +139,55 @@
             font-family: inherit;
             touch-action: manipulation;
             min-height: 44px;
-            display: flex;
+            display: inline-flex;
             align-items: center;
             gap: 8px;
         }
         .reset-section .btn-reset:active { transform: scale(0.96); }
         .reset-section .btn-reset:hover {
-            background: rgba(255,69,58,0.3);
+            background: rgba(255,69,58,0.35);
+        }
+
+        /* ===== 底部重置区块（始终可见） ===== */
+        .bottom-reset-section {
+            text-align: center;
+            padding: 16px 0 8px;
+            border-top: 0.5px solid rgba(255,255,255,0.04);
+            margin-top: 8px;
+        }
+        .bottom-reset-section .reset-hint {
+            color: #8e8e93;
+            font-size: 0.85rem;
+            margin-bottom: 8px;
+            line-height: 1.6;
+        }
+        .bottom-reset-section .reset-hint .warning {
+            color: #ff453a;
+            font-weight: 600;
+        }
+        .bottom-reset-section .reset-hint i {
+            color: #ffbe3b;
+        }
+        .bottom-reset-section .btn-clear {
+            background: rgba(255,159,10,0.15);
+            border: none;
+            border-radius: 30px;
+            padding: 6px 22px;
+            font-size: 0.9rem;
+            font-weight: 600;
+            color: #ffbe3b;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            font-family: inherit;
+            touch-action: manipulation;
+            min-height: 44px;
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+        }
+        .bottom-reset-section .btn-clear:active { transform: scale(0.96); }
+        .bottom-reset-section .btn-clear:hover {
+            background: rgba(255,159,10,0.3);
         }
 
         /* ===== 表单 ===== */
@@ -201,311 +243,63 @@
         }
         .form-group select option { background: #1c1c1e; color: #f5f5f7; }
 
-        /* ===== 通用下拉+手动输入行 ===== */
-        .preset-row {
-            display: flex;
-            gap: 6px;
-            align-items: center;
-        }
-        .preset-row select {
-            flex: 1;
-            min-height: 48px;
-        }
-        .preset-row .btn-add-preset {
-            background: rgba(0,122,255,0.15);
-            border: none;
-            border-radius: 30px;
-            padding: 0 16px;
-            font-size: 0.85rem;
-            color: #66b0ff;
-            cursor: pointer;
-            font-family: inherit;
-            white-space: nowrap;
-            min-height: 48px;
-            display: flex;
-            align-items: center;
-            touch-action: manipulation;
-        }
+        .preset-row { display: flex; gap: 6px; align-items: center; }
+        .preset-row select { flex: 1; min-height: 48px; }
+        .preset-row .btn-add-preset { background: rgba(0,122,255,0.15); border: none; border-radius: 30px; padding: 0 16px; font-size: 0.85rem; color: #66b0ff; cursor: pointer; font-family: inherit; white-space: nowrap; min-height: 48px; display: flex; align-items: center; touch-action: manipulation; }
         .preset-row .btn-add-preset:active { transform: scale(0.96); }
-
-        .manual-row {
-            display: none;
-            gap: 6px;
-            align-items: center;
-        }
-        .manual-row.show {
-            display: flex;
-        }
-        .manual-row input {
-            flex: 1;
-            min-height: 48px;
-            background: rgba(255,255,255,0.06);
-            border: 0.5px solid rgba(255,255,255,0.08);
-            border-radius: 12px;
-            padding: 12px 14px;
-            font-size: 16px;
-            color: #f5f5f7;
-            outline: none;
-        }
-        .manual-row input:focus {
-            border-color: #007aff;
-            background: rgba(255,255,255,0.08);
-            box-shadow: 0 0 0 3px rgba(0,122,255,0.12);
-        }
-        .manual-row .btn-cancel {
-            background: rgba(255,255,255,0.06);
-            border: none;
-            border-radius: 30px;
-            padding: 0 16px;
-            font-size: 0.85rem;
-            color: #aeaeb2;
-            cursor: pointer;
-            font-family: inherit;
-            white-space: nowrap;
-            min-height: 48px;
-            display: flex;
-            align-items: center;
-            touch-action: manipulation;
-        }
+        .manual-row { display: none; gap: 6px; align-items: center; }
+        .manual-row.show { display: flex; }
+        .manual-row input { flex: 1; min-height: 48px; background: rgba(255,255,255,0.06); border: 0.5px solid rgba(255,255,255,0.08); border-radius: 12px; padding: 12px 14px; font-size: 16px; color: #f5f5f7; outline: none; }
+        .manual-row input:focus { border-color: #007aff; background: rgba(255,255,255,0.08); box-shadow: 0 0 0 3px rgba(0,122,255,0.12); }
+        .manual-row .btn-cancel { background: rgba(255,255,255,0.06); border: none; border-radius: 30px; padding: 0 16px; font-size: 0.85rem; color: #aeaeb2; cursor: pointer; font-family: inherit; white-space: nowrap; min-height: 48px; display: flex; align-items: center; touch-action: manipulation; }
         .manual-row .btn-cancel:active { transform: scale(0.96); }
 
-        /* ===== 标签容器 ===== */
-        .tag-container {
-            display: flex;
-            flex-wrap: wrap;
-            gap: 6px;
-            margin-top: 4px;
-            min-height: 32px;
-        }
-        .tag-item {
-            display: inline-flex;
-            align-items: center;
-            gap: 6px;
-            background: rgba(0,122,255,0.15);
-            border-radius: 30px;
-            padding: 4px 12px 4px 14px;
-            font-size: 0.85rem;
-            color: #66b0ff;
-            border: 0.5px solid rgba(0,122,255,0.15);
-        }
-        .tag-item i {
-            cursor: pointer;
-            font-size: 0.75rem;
-            color: #8e8e93;
-            padding: 2px;
-            touch-action: manipulation;
-        }
+        .tag-container { display: flex; flex-wrap: wrap; gap: 6px; margin-top: 4px; min-height: 32px; }
+        .tag-item { display: inline-flex; align-items: center; gap: 6px; background: rgba(0,122,255,0.15); border-radius: 30px; padding: 4px 12px 4px 14px; font-size: 0.85rem; color: #66b0ff; border: 0.5px solid rgba(0,122,255,0.15); }
+        .tag-item i { cursor: pointer; font-size: 0.75rem; color: #8e8e93; padding: 2px; touch-action: manipulation; }
         .tag-item i:active { color: #ff453a; }
 
-        /* ===== 水平 + 期望水平 ===== */
-        .level-row {
-            display: grid;
-            grid-template-columns: 1fr 1fr;
-            gap: 20px;
-            grid-column: 1 / -1;
-        }
-        .level-group, .expect-level-group {
-            grid-column: auto;
-        }
-        .level-selector, .expect-level-selector {
-            display: flex;
-            flex-wrap: wrap;
-            gap: 6px;
-            padding-top: 4px;
-        }
-        .level-option, .expect-level-option {
-            padding: 6px 14px;
-            border-radius: 30px;
-            background: rgba(255,255,255,0.04);
-            border: 1px solid rgba(255,255,255,0.06);
-            cursor: pointer;
-            font-size: 0.85rem;
-            font-weight: 500;
-            color: #aeaeb2;
-            transition: background 0.2s, color 0.2s, border-color 0.2s;
-            user-select: none;
-            touch-action: manipulation;
-            min-height: 36px;
-            display: flex;
-            align-items: center;
-        }
+        .level-row { display: grid; grid-template-columns: 1fr 1fr; gap: 20px; grid-column: 1 / -1; }
+        .level-group, .expect-level-group { grid-column: auto; }
+        .level-selector, .expect-level-selector { display: flex; flex-wrap: wrap; gap: 6px; padding-top: 4px; }
+        .level-option, .expect-level-option { padding: 6px 14px; border-radius: 30px; background: rgba(255,255,255,0.04); border: 1px solid rgba(255,255,255,0.06); cursor: pointer; font-size: 0.85rem; font-weight: 500; color: #aeaeb2; transition: background 0.2s, color 0.2s, border-color 0.2s; user-select: none; touch-action: manipulation; min-height: 36px; display: flex; align-items: center; }
         .level-option:active, .expect-level-option:active { transform: scale(0.96); }
-        .level-option.active, .expect-level-option.active {
-            background: #007aff;
-            border-color: #007aff;
-            color: #fff;
-            box-shadow: 0 2px 12px rgba(0,122,255,0.25);
-        }
+        .level-option.active, .expect-level-option.active { background: #007aff; border-color: #007aff; color: #fff; box-shadow: 0 2px 12px rgba(0,122,255,0.25); }
 
-        /* ===== 在线时间自定义 ===== */
-        .online-custom {
-            margin-top: 4px;
-            display: none;
-        }
+        .online-custom { margin-top: 4px; display: none; }
         .online-custom.show { display: block; }
-        .online-custom .mask-wrapper {
-            position: relative;
-            width: 100%;
-        }
-        .online-custom .mask-wrapper input {
-            width: 100%;
-            background: rgba(255,255,255,0.06);
-            border: 0.5px solid rgba(255,255,255,0.08);
-            border-radius: 12px;
-            padding: 12px 14px;
-            font-size: 16px;
-            color: #f5f5f7;
-            outline: none;
-            font-family: inherit;
-            letter-spacing: 1px;
-            caret-color: #007aff;
-        }
-        .online-custom .mask-wrapper input:focus {
-            border-color: #007aff;
-            background: rgba(255,255,255,0.08);
-            box-shadow: 0 0 0 3px rgba(0,122,255,0.12);
-        }
-        .online-custom .mask-wrapper input.error {
-            border-color: #ff453a;
-            box-shadow: 0 0 0 3px rgba(255,69,58,0.2);
-        }
-        .online-custom .mask-placeholder {
-            position: absolute;
-            left: 14px;
-            top: 50%;
-            transform: translateY(-50%);
-            color: #636366;
-            font-size: 16px;
-            pointer-events: none;
-            letter-spacing: 1px;
-            font-family: monospace;
-            opacity: 0.5;
-        }
-        .online-custom .mask-placeholder.hidden {
-            opacity: 0;
-        }
-        .online-custom span {
-            font-size: 0.7rem;
-            color: #636366;
-            margin-top: 4px;
-            display: block;
-        }
+        .online-custom .mask-wrapper { position: relative; width: 100%; }
+        .online-custom .mask-wrapper input { width: 100%; background: rgba(255,255,255,0.06); border: 0.5px solid rgba(255,255,255,0.08); border-radius: 12px; padding: 12px 14px; font-size: 16px; color: #f5f5f7; outline: none; font-family: inherit; letter-spacing: 1px; caret-color: #007aff; }
+        .online-custom .mask-wrapper input:focus { border-color: #007aff; background: rgba(255,255,255,0.08); box-shadow: 0 0 0 3px rgba(0,122,255,0.12); }
+        .online-custom .mask-wrapper input.error { border-color: #ff453a; box-shadow: 0 0 0 3px rgba(255,69,58,0.2); }
+        .online-custom .mask-placeholder { position: absolute; left: 14px; top: 50%; transform: translateY(-50%); color: #636366; font-size: 16px; pointer-events: none; letter-spacing: 1px; font-family: monospace; opacity: 0.5; }
+        .online-custom .mask-placeholder.hidden { opacity: 0; }
+        .online-custom span { font-size: 0.7rem; color: #636366; margin-top: 4px; display: block; }
 
-        /* ===== 按钮 ===== */
-        .form-actions {
-            display: flex;
-            flex-wrap: wrap;
-            gap: 10px;
-            align-items: center;
-            margin-top: 8px;
-            justify-content: center;
-            grid-column: 1 / -1;
-        }
-        .btn {
-            padding: 12px 24px;
-            border: none;
-            border-radius: 30px;
-            font-size: 1rem;
-            font-weight: 600;
-            cursor: pointer;
-            transition: all 0.2s ease;
-            display: inline-flex;
-            align-items: center;
-            justify-content: center;
-            gap: 8px;
-            font-family: inherit;
-            touch-action: manipulation;
-            min-height: 48px;
-            flex: 1 1 auto;
-            min-width: 120px;
-        }
+        .form-actions { display: flex; flex-wrap: wrap; gap: 10px; align-items: center; margin-top: 8px; justify-content: center; grid-column: 1 / -1; }
+        .btn { padding: 12px 24px; border: none; border-radius: 30px; font-size: 1rem; font-weight: 600; cursor: pointer; transition: all 0.2s ease; display: inline-flex; align-items: center; justify-content: center; gap: 8px; font-family: inherit; touch-action: manipulation; min-height: 48px; flex: 1 1 auto; min-width: 120px; }
         .btn:active { transform: scale(0.96); }
-        .btn-primary {
-            background: #007aff;
-            color: #fff;
-            box-shadow: 0 2px 12px rgba(0,122,255,0.25);
-        }
-        .btn-secondary {
-            background: rgba(255,255,255,0.08);
-            color: #aeaeb2;
-            border: 0.5px solid rgba(255,255,255,0.06);
-        }
-        .btn-danger {
-            background: rgba(255,69,58,0.15);
-            color: #ff453a;
-            border: 0.5px solid rgba(255,69,58,0.15);
-        }
-        #editHint {
-            font-size: 0.8rem;
-            color: #636366;
-            display: none;
-            width: 100%;
-            text-align: center;
-        }
+        .btn-primary { background: #007aff; color: #fff; box-shadow: 0 2px 12px rgba(0,122,255,0.25); }
+        .btn-secondary { background: rgba(255,255,255,0.08); color: #aeaeb2; border: 0.5px solid rgba(255,255,255,0.06); }
+        #editHint { font-size: 0.8rem; color: #636366; display: none; width: 100%; text-align: center; }
         #editHint a { color: #007aff; text-decoration: none; font-weight: 500; }
 
-        /* ===== 统计 ===== */
-        .stats-grid {
-            display: grid;
-            grid-template-columns: repeat(3, 1fr);
-            gap: 8px;
-        }
-        .stat-item {
-            background: rgba(255,255,255,0.04);
-            border-radius: 16px;
-            padding: 12px 4px;
-            text-align: center;
-            border: 0.5px solid rgba(255,255,255,0.04);
-        }
-        .stat-number {
-            font-size: 1.5rem;
-            font-weight: 700;
-            color: #f5f5f7;
-            line-height: 1.2;
-        }
+        .stats-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 8px; }
+        .stat-item { background: rgba(255,255,255,0.04); border-radius: 16px; padding: 12px 4px; text-align: center; border: 0.5px solid rgba(255,255,255,0.04); }
+        .stat-number { font-size: 1.5rem; font-weight: 700; color: #f5f5f7; line-height: 1.2; }
         .stat-number.gradient-blue { color: #007aff; }
         .stat-number.gradient-green { color: #34c759; }
         .stat-number.gradient-orange { color: #ff9f0a; }
         .stat-number.gradient-pink { color: #ff2d55; }
         .stat-number.gradient-purple { color: #af52de; }
-        .stat-label {
-            font-size: 0.65rem;
-            color: #8e8e93;
-            margin-top: 2px;
-            font-weight: 500;
-        }
+        .stat-label { font-size: 0.65rem; color: #8e8e93; margin-top: 2px; font-weight: 500; }
 
-        /* ===== 推荐榜单 ===== */
-        .rank-list {
-            display: grid;
-            grid-template-columns: 1fr 1fr;
-            gap: 8px;
-            margin-top: 6px;
-        }
-        .rank-item {
-            background: rgba(255,255,255,0.04);
-            border-radius: 14px;
-            padding: 10px 12px;
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            border: 0.5px solid rgba(255,255,255,0.05);
-            font-size: 0.85rem;
-        }
-        .rank-game {
-            font-weight: 500;
-            color: #f5f5f7;
-        }
-        .rank-votes {
-            background: rgba(0,122,255,0.15);
-            padding: 2px 10px;
-            border-radius: 30px;
-            font-size: 0.75rem;
-            color: #66b0ff;
-            font-weight: 600;
-        }
+        .rank-list { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; margin-top: 6px; }
+        .rank-item { background: rgba(255,255,255,0.04); border-radius: 14px; padding: 10px 12px; display: flex; justify-content: space-between; align-items: center; border: 0.5px solid rgba(255,255,255,0.05); font-size: 0.85rem; }
+        .rank-game { font-weight: 500; color: #f5f5f7; }
+        .rank-votes { background: rgba(0,122,255,0.15); padding: 2px 10px; border-radius: 30px; font-size: 0.75rem; color: #66b0ff; font-weight: 600; }
 
-        /* ===== 搭子列表 ===== */
+        /* 搭子列表 - 无操作列 */
         .list-controls {
             display: flex;
             flex-wrap: wrap;
@@ -598,7 +392,7 @@
             width: 100%;
             border-collapse: collapse;
             font-size: 0.75rem;
-            min-width: 600px;
+            min-width: 550px;
         }
         thead {
             border-bottom: 0.5px solid rgba(255,255,255,0.06);
@@ -643,16 +437,21 @@
             margin: 1px 1px 0 0;
         }
         .voice-badge { background: rgba(0,122,255,0.08); color: #66b0ff; }
-        /* 操作列已移除删除按钮，只保留更多信息，因此不再显示 action-btns */
-        .action-btns {
-            display: none; /* 隐藏操作列 */
-        }
 
         .more-btn {
             background: rgba(255,255,255,0.06);
             color: #aeaeb2;
             border: 0.5px solid rgba(255,255,255,0.06);
+            padding: 4px 10px;
+            border-radius: 30px;
+            min-height: 32px;
+            min-width: 32px;
+            border: none;
+            cursor: pointer;
+            font-family: inherit;
+            touch-action: manipulation;
         }
+        .more-btn:active { transform: scale(0.96); }
         .more-btn.active { background: rgba(0,122,255,0.15); color: #66b0ff; }
 
         .more-info {
@@ -717,7 +516,6 @@
             border-color: #007aff;
         }
 
-        /* ===== Toast ===== */
         .toast {
             position: fixed;
             top: 16px;
@@ -744,32 +542,106 @@
         .toast.success i { color: #34c759; }
         .toast.error i { color: #ff453a; }
         .toast.info i { color: #007aff; }
+        .toast.warning i { color: #ffbe3b; }
 
-        /* ===== 底部额外说明 ===== */
-        .footer-notice {
-            text-align: center;
-            padding: 12px 0 4px;
-            font-size: 0.8rem;
-            color: #8e8e93;
-            border-top: 0.5px solid rgba(255,255,255,0.04);
-            margin-top: 8px;
-            line-height: 1.8;
-        }
-        .footer-notice .highlight {
-            color: #ff9f0a;
-            font-weight: 500;
-        }
-        .footer-notice .admin {
-            color: #66b0ff;
-            font-weight: 600;
-        }
         .footer {
             text-align: center;
-            padding: 16px 0 4px;
+            padding: 12px 0 4px;
             color: #3a3a3c;
             font-size: 0.7rem;
             border-top: 0.5px solid rgba(255,255,255,0.04);
-            margin-top: 8px;
+            margin-top: 6px;
+        }
+
+        /* ===== 弹窗 ===== */
+        .modal-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0,0,0,0.7);
+            backdrop-filter: blur(8px);
+            z-index: 1000;
+            display: none;
+            align-items: center;
+            justify-content: center;
+            padding: 20px;
+            animation: fadeIn 0.3s ease;
+        }
+        .modal-overlay.show {
+            display: flex;
+        }
+        .modal-box {
+            background: rgba(28,28,30,0.95);
+            border-radius: 24px;
+            padding: 30px 28px;
+            max-width: 540px;
+            width: 100%;
+            border: 0.5px solid rgba(255,255,255,0.1);
+            box-shadow: 0 20px 60px rgba(0,0,0,0.6);
+            animation: slideUp 0.3s ease;
+        }
+        .modal-box h2 {
+            font-size: 1.4rem;
+            font-weight: 700;
+            margin-bottom: 16px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            color: #f5f5f7;
+        }
+        .modal-box h2 i {
+            color: #007aff;
+        }
+        .modal-box .modal-content {
+            color: #d1d1d6;
+            font-size: 0.95rem;
+            line-height: 1.7;
+            margin-bottom: 20px;
+        }
+        .modal-box .modal-content ul {
+            list-style: none;
+            padding: 0;
+            margin: 12px 0;
+        }
+        .modal-box .modal-content ul li {
+            padding: 4px 0 4px 24px;
+            position: relative;
+        }
+        .modal-box .modal-content ul li::before {
+            content: '•';
+            position: absolute;
+            left: 4px;
+            color: #007aff;
+            font-size: 1.2rem;
+        }
+        .modal-box .btn-modal-close {
+            background: #007aff;
+            border: none;
+            border-radius: 30px;
+            padding: 12px 28px;
+            font-size: 1rem;
+            font-weight: 600;
+            color: #fff;
+            cursor: pointer;
+            width: 100%;
+            transition: background 0.2s;
+            font-family: inherit;
+        }
+        .modal-box .btn-modal-close:hover {
+            background: #0066d9;
+        }
+        .modal-box .btn-modal-close:active {
+            transform: scale(0.97);
+        }
+        @keyframes fadeIn {
+            from { opacity: 0; }
+            to { opacity: 1; }
+        }
+        @keyframes slideUp {
+            from { transform: translateY(30px); opacity: 0; }
+            to { transform: translateY(0); opacity: 1; }
         }
 
         /* ===== 响应式 ===== */
@@ -799,11 +671,30 @@
             .level-group, .expect-level-group { grid-column: auto; }
             .preset-row { flex-wrap: nowrap; }
             .reset-section { flex-direction: column; align-items: stretch; text-align: center; }
+            .bottom-reset-section { text-align: center; }
+            .modal-box { padding: 24px 20px; }
         }
     </style>
 </head>
 <body>
 <div class="container">
+
+    <!-- ===== 页面说明弹窗 ===== -->
+    <div class="modal-overlay" id="welcomeModal">
+        <div class="modal-box">
+            <h2><i class="fas fa-info-circle"></i> 欢迎使用恐游搭子</h2>
+            <div class="modal-content">
+                <p>该网页仅为 <strong>“玩不死就往死里玩”</strong> 群服务。</p>
+                <ul>
+                    <li>请不要将网页到处传播，源码数据库均为公开状态</li>
+                    <li>请不要填写任何和你隐私有关的东西（真实姓名、电话号等信息）</li>
+                    <li>请不要恶意上传无效数据！！！</li>
+                </ul>
+                <p style="font-size:0.9rem;color:#8e8e93;margin-top:8px;">玩家登记库设计初衷是方便找搭子，不是垃圾桶T.T</p>
+            </div>
+            <button class="btn-modal-close" id="closeModalBtn">我已了解，开始使用</button>
+        </div>
+    </div>
 
     <!-- ===== 头部 ===== -->
     <header class="header">
@@ -816,18 +707,18 @@
         </div>
     </header>
 
-    <!-- ===== 重新登记区块 ===== -->
+    <!-- ===== 顶部重新登记区块（仅显示“重新登记”按钮） ===== -->
     <div class="reset-section" id="resetSection">
         <div class="reset-text">
-            <i class="fas fa-info-circle"></i>
-            你已经提交过信息，是否想要重新登记？
+            <i class="fas fa-user-check"></i>
+            你已经提交过信息（<span id="resetUsernameDisplay"></span>），是否想要重新登记？
         </div>
         <button class="btn-reset" id="resetRegistrationBtn">
             <i class="fas fa-redo"></i> 重新登记
         </button>
     </div>
 
-    <!-- ===== 登记卡片 ===== -->
+    <!-- ===== 登记卡片（默认显示，已登记用户隐藏） ===== -->
     <section class="card" id="formCard">
         <div class="card-title"><i class="fas fa-pen-fancy"></i> <span id="formTitle">📝 登记你的游戏信息</span></div>
         <form id="playerForm" autocomplete="off">
@@ -844,12 +735,13 @@
                         <option value="KOOK">KOOK</option>
                         <option value="OOPZ">OOPZ</option>
                         <option value="群语音">群语音</option>
+                        <option value="any">全部/都可以</option>
                     </select>
                 </div>
 
-                <!-- 游戏时长 -->
+                <!-- 主要玩的游戏时长 -->
                 <div class="form-group">
-                    <label><i class="fas fa-hourglass-half"></i> 游戏时长</label>
+                    <label><i class="fas fa-hourglass-half"></i> 主要玩的游戏时长</label>
                     <select id="duration">
                         <option value="0-100">0-100 小时</option>
                         <option value="100-200">100-200 小时</option>
@@ -889,7 +781,6 @@
                         </div>
                         <input type="hidden" id="level" value="萌新" />
                     </div>
-
                     <div class="form-group expect-level-group">
                         <label><i class="fas fa-users"></i> 你希望一起游玩的玩家水平</label>
                         <div class="expect-level-selector" id="expectedLevelSelector">
@@ -965,7 +856,7 @@
                         <button type="button" class="btn-add-preset" id="alsoPresetAdd">添加</button>
                     </div>
                     <div class="manual-row" id="alsoManualRow">
-                        <input type="text" id="alsoManual" placeholder="请输入也玩的游戏名称" />
+                        <input type="text" class="tag-input" id="alsoManual" placeholder="输入游戏名，按回车确认" />
                         <button type="button" class="btn-cancel" id="alsoManualCancel">取消</button>
                     </div>
                     <div class="tag-container" id="alsoTagContainer"></div>
@@ -1001,7 +892,7 @@
                         <button type="button" class="btn-add-preset" id="wantPresetAdd">添加</button>
                     </div>
                     <div class="manual-row" id="wantManualRow">
-                        <input type="text" id="wantManual" placeholder="请输入你想玩的游戏名称" />
+                        <input type="text" class="tag-input" id="wantManual" placeholder="输入游戏名，按回车确认" />
                         <button type="button" class="btn-cancel" id="wantManualCancel">取消</button>
                     </div>
                     <div class="tag-container" id="wantTagContainer"></div>
@@ -1038,7 +929,7 @@
                         <span class="tag-preset-hint" id="recommendRemainHint" style="font-size:0.7rem;color:#636366;margin-left:4px;">还可推荐 3 款</span>
                     </div>
                     <div class="manual-row" id="recommendManualRow">
-                        <input type="text" id="recommendManual" placeholder="请输入推荐游戏名称" />
+                        <input type="text" class="tag-input" id="recommendManual" placeholder="输入游戏名，按回车确认" />
                         <button type="button" class="btn-cancel" id="recommendManualCancel">取消</button>
                     </div>
                     <div class="tag-container" id="recommendTagContainer"></div>
@@ -1075,7 +966,7 @@
         <div id="rankEmpty" class="empty-state" style="display:none;padding:16px 0;"><i class="fas fa-heart" style="font-size:1.8rem;"></i><p>暂无推荐，快来推荐你喜欢的游戏吧！</p></div>
     </section>
 
-    <!-- ===== 搭子列表（无删除按钮） ===== -->
+    <!-- ===== 搭子列表 ===== -->
     <section class="card">
         <div class="card-title"><i class="fas fa-table"></i> <span>👥 搭子列表</span> <span style="font-size:0.7rem;font-weight:400;color:#636366;margin-left:auto;" id="recordCount">共 0 条</span></div>
 
@@ -1095,7 +986,7 @@
                 <select id="filterGame"><option value="">全部游戏</option></select>
                 <select id="filterLevel"><option value="">全部水平</option><option value="萌新">萌新</option><option value="普通">普通</option><option value="高手">高手</option><option value="大手子">大手子</option></select>
                 <select id="filterDuration"><option value="">全部时长</option><option value="0-100">0-100h</option><option value="100-200">100-200h</option><option value="200-500">200-500h</option><option value="500+">500+h</option></select>
-                <select id="filterVoice"><option value="">全部语音</option><option value="KOOK">KOOK</option><option value="OOPZ">OOPZ</option><option value="群语音">群语音</option></select>
+                <select id="filterVoice"><option value="">全部语音</option><option value="KOOK">KOOK</option><option value="OOPZ">OOPZ</option><option value="群语音">群语音</option><option value="any">全部/都可以</option></select>
                 <span class="clear-filters" id="clearFilters"><i class="fas fa-times-circle"></i> 清除</span>
             </div>
         </div>
@@ -1120,15 +1011,21 @@
         <div class="pagination" id="paginationControls"></div>
     </section>
 
-    <!-- ===== 底部提示（新增） ===== -->
-    <div class="footer-notice">
-        <div>已登记过的用户若无法登记或是无法重新登记，请联系管理员 <span class="admin">@潘安</span></div>
-        <div>该网页仅为 <span class="highlight">“玩一辈子恐游群”</span> 服务</div>
+    <!-- ===== 底部重置区块（始终可见） ===== -->
+    <div class="bottom-reset-section">
+        <div class="reset-hint">
+            <i class="fas fa-exclamation-triangle"></i>
+            在网页异常无法登记的时候点我 <span class="warning">没事不要点击！！！</span>
+        </div>
+        <button class="btn-clear" id="resetBrowserBtn">
+            <i class="fas fa-undo-alt"></i> 重置
+        </button>
     </div>
+
+    <!-- ===== 底部版权 ===== -->
     <div class="footer">
         <i class="fas fa-copyright"></i> 网页解释权归 玩一辈子恐游的宝儿姐 所有
     </div>
-
 </div>
 
 <!-- ===== Toast ===== -->
@@ -1136,7 +1033,7 @@
 
 <script>
     // ============================================================
-    // Firebase 配置 (请替换成您自己的配置)
+    // Firebase 配置（请替换为您自己的项目配置）
     // ============================================================
     const firebaseConfig = {
         apiKey: "AIzaSyDVYlQZHk2H7q6bt6yuaynH9pMorbgsOg4",
@@ -1223,7 +1120,10 @@
     const submitBtn = document.getElementById('submitBtn');
     const resetBtn = document.getElementById('resetBtn');
     const resetRegistrationBtn = document.getElementById('resetRegistrationBtn');
+    const resetBrowserBtn = document.getElementById('resetBrowserBtn');
     const resetSection = document.getElementById('resetSection');
+    const resetUsernameDisplay = document.getElementById('resetUsernameDisplay');
+    const formCard = document.getElementById('formCard');
     const formTitle = document.getElementById('formTitle');
     const editHint = document.getElementById('editHint');
     const cancelEditLink = document.getElementById('cancelEdit');
@@ -1255,6 +1155,9 @@
     const toast = document.getElementById('toast');
     const toastMessage = document.getElementById('toastMessage');
 
+    const welcomeModal = document.getElementById('welcomeModal');
+    const closeModalBtn = document.getElementById('closeModalBtn');
+
     // ============================================================
     // 状态
     // ============================================================
@@ -1267,20 +1170,20 @@
     const USERNAME_KEY = 'horror_buddy_username';
 
     // ============================================================
-    // 工具
+    // 核心逻辑
     // ============================================================
     function showToast(message, type = 'success') {
-        if (toastTimer) clearTimeout(toastTimer);
+        if (window.toastTimer) clearTimeout(window.toastTimer);
         toast.className = 'toast ' + type;
         toastMessage.textContent = message;
         const icon = toast.querySelector('i');
         if (type === 'success') icon.className = 'fas fa-check-circle';
         else if (type === 'error') icon.className = 'fas fa-exclamation-circle';
+        else if (type === 'warning') icon.className = 'fas fa-exclamation-triangle';
         else icon.className = 'fas fa-info-circle';
         toast.classList.add('show');
-        toastTimer = setTimeout(() => toast.classList.remove('show'), 2800);
+        window.toastTimer = setTimeout(() => toast.classList.remove('show'), 3000);
     }
-    let toastTimer = null;
 
     function escapeHtml(str) {
         if (!str) return '';
@@ -1295,6 +1198,19 @@
 
     function encodeUserKey(username) {
         return encodeURIComponent(username);
+    }
+
+    // ---------- 切换显示 ----------
+    function toggleDisplay() {
+        const savedUser = getCurrentUsername();
+        if (savedUser) {
+            resetUsernameDisplay.textContent = savedUser;
+            resetSection.classList.add('show');
+            formCard.style.display = 'none';
+        } else {
+            resetSection.classList.remove('show');
+            formCard.style.display = 'block';
+        }
     }
 
     // ---------- 标签渲染 ----------
@@ -1532,17 +1448,26 @@
             });
             playersData = playersArray;
             applyFiltersAndRender();
-            // 检查重新登记区块：仅当本地存储的用户名在数据库中存在时显示
-            const currentUser = getCurrentUsername();
-            if (currentUser && playersArray.some(p => p.username === currentUser)) {
-                resetSection.classList.add('show');
+            const savedUser = getCurrentUsername();
+            if (savedUser) {
+                const exists = playersArray.some(p => p.username === savedUser);
+                if (!exists) {
+                    localStorage.removeItem(USERNAME_KEY);
+                    toggleDisplay();
+                    showToast('检测到您的记录已被管理员删除，已自动清除本地记录', 'warning');
+                } else {
+                    resetUsernameDisplay.textContent = savedUser;
+                    resetSection.classList.add('show');
+                    formCard.style.display = 'none';
+                }
             } else {
                 resetSection.classList.remove('show');
+                formCard.style.display = 'block';
             }
         });
     }
 
-    // ---------- 过滤、分页、渲染（无删除按钮） ----------
+    // ---------- 过滤、分页、渲染 ----------
     function getFilteredPlayers() {
         const keyword = searchInput.value.trim().toLowerCase();
         const gameFilter = filterGame.value;
@@ -1572,7 +1497,6 @@
 
     function applyFiltersAndRender() {
         filteredPlayers = getFilteredPlayers();
-        // 更新筛选下拉
         const allGames = new Set();
         playersData.forEach(p => {
             if (p.mainGame) allGames.add(p.mainGame);
@@ -1625,7 +1549,7 @@
                 <div class="info-row"><span class="info-label">想玩的游戏</span><span class="info-value">${wantStr || '—'}</span></div>
                 <div class="info-row"><span class="info-label">期望队友</span><span class="info-value">${expectedStr || '—'}</span></div>
                 <div class="info-row"><span class="info-label">推荐游戏</span><span class="info-value">${recommendStr || '—'}</span></div>
-                <div class="info-row"><span class="info-label">游戏时长</span><span class="info-value">${escapeHtml(p.duration||'—')}</span></div>
+                <div class="info-row"><span class="info-label">主要玩的游戏时长</span><span class="info-value">${escapeHtml(p.duration||'—')}</span></div>
             `;
 
             html += `
@@ -1644,7 +1568,7 @@
         });
         tableBody.innerHTML = html;
 
-        // 更多信息展开
+        // 更多信息
         tableBody.querySelectorAll('.more-btn').forEach(btn => {
             btn.addEventListener('click', function() {
                 const key = this.dataset.moreId;
@@ -1763,7 +1687,7 @@
         onlineTimeCustom.classList.remove('error');
     }
 
-    // ---------- 重新登记 ----------
+    // ---------- 重新登记（删除数据库记录） ----------
     resetRegistrationBtn.addEventListener('click', function() {
         const currentUser = getCurrentUsername();
         if (!currentUser) {
@@ -1774,12 +1698,21 @@
         const userKey = encodeUserKey(currentUser);
         playersRef.child(userKey).remove().then(() => {
             localStorage.removeItem(USERNAME_KEY);
-            resetSection.classList.remove('show');
+            toggleDisplay();
             showToast(`已删除您的记录，可以重新登记`, 'success');
             resetFormFields();
         }).catch(err => {
             showToast('删除失败: ' + err.message, 'error');
         });
+    });
+
+    // ---------- 重置（仅清除本地存储） ----------
+    resetBrowserBtn.addEventListener('click', function() {
+        if (!confirm('确定要清除浏览器中的登记记录吗？这将允许你重新输入新的用户名。你之前的登记数据（如果存在）不会被删除。')) return;
+        localStorage.removeItem(USERNAME_KEY);
+        toggleDisplay();
+        resetFormFields();
+        showToast('已清除本地记录，您可以重新登记。若还是无法登记，请联系管理员@潘安', 'warning');
     });
 
     // ---------- 表单提交 ----------
@@ -1797,15 +1730,13 @@
         const username = usernameInput.value.trim();
         if (!username) { showToast('请输入用户名', 'error'); usernameInput.focus(); isSubmitting = false; return; }
 
-        // 检查本地存储是否已有用户名（防止重复提交）
         const savedUser = getCurrentUsername();
         if (savedUser && savedUser !== username) {
-            showToast(`您已登记为「${savedUser}」，请使用该用户名或点击「重新登记」更换用户`, 'error');
+            showToast(`您已登记为「${savedUser}」，请使用该用户名或点击「重置」清除记录`, 'error');
             isSubmitting = false;
             return;
         }
 
-        // 主要游戏
         let mainGame = mainGameSelect.value;
         if (mainGame === '__manual__') {
             mainGame = mainManual.value.trim();
@@ -1814,7 +1745,6 @@
             showToast('请选择或输入主要游戏', 'error'); mainGameSelect.focus(); isSubmitting = false; return;
         }
 
-        // 检查用户名是否已存在（数据库）
         const userKey = encodeUserKey(username);
         const userRef = playersRef.child(userKey);
         const snapshot = await userRef.once('value');
@@ -1824,7 +1754,6 @@
             return;
         }
 
-        // 在线时间
         const onlineTimeTypeVal = onlineTimeType.value;
         let onlineTimeCustomVal = '';
         if (onlineTimeTypeVal === '自定义') {
@@ -1867,10 +1796,10 @@
             localStorage.setItem(USERNAME_KEY, username);
             showToast(`🎉 ${username} 登记成功`, 'success');
             resetFormFields();
-            // 重新登记区块会在数据监听中自动显示
+            toggleDisplay();
+            isSubmitting = false;
         }).catch(err => {
             showToast('保存失败: ' + err.message, 'error');
-        }).finally(() => {
             isSubmitting = false;
         });
     });
@@ -1904,13 +1833,33 @@
         applyFiltersAndRender();
     });
 
+    // ---------- 弹窗 ----------
+    if (!sessionStorage.getItem('welcomeShown')) {
+        welcomeModal.classList.add('show');
+        sessionStorage.setItem('welcomeShown', 'true');
+    }
+    closeModalBtn.addEventListener('click', function() {
+        welcomeModal.classList.remove('show');
+    });
+    welcomeModal.addEventListener('click', function(e) {
+        if (e.target === this) {
+            welcomeModal.classList.remove('show');
+        }
+    });
+
     // ---------- 键盘 ----------
     document.addEventListener('keydown', function(e) {
         if (e.ctrlKey && e.key === 'f') { e.preventDefault(); searchInput.focus(); }
+        if (e.key === 'Escape') {
+            if (welcomeModal.classList.contains('show')) {
+                welcomeModal.classList.remove('show');
+            }
+        }
     });
 
     // ---------- 初始化 ----------
     function init() {
+        toggleDisplay();
         setLevel('萌新');
         expectedLevels = [];
         renderExpectedLevels();
@@ -1921,7 +1870,6 @@
         recommendGamesArray = [];
         renderTags(recommendTagContainer, recommendGamesArray, recommendGamesHidden, 3);
         updateRecommendHint();
-        // 确保预设行显示
         [mainPresetRow, alsoPresetRow, wantPresetRow, recommendPresetRow].forEach(row => row.style.display = 'flex');
         [mainManualRow, alsoManualRow, wantManualRow, recommendManualRow].forEach(row => row.classList.remove('show'));
 
