@@ -643,27 +643,11 @@
             margin: 1px 1px 0 0;
         }
         .voice-badge { background: rgba(0,122,255,0.08); color: #66b0ff; }
+        /* 操作列已移除删除按钮，只保留更多信息，因此不再显示 action-btns */
         .action-btns {
-            display: flex;
-            gap: 4px;
-            flex-wrap: wrap;
-            justify-content: center;
+            display: none; /* 隐藏操作列 */
         }
-        .btn-sm {
-            padding: 4px 10px;
-            font-size: 0.7rem;
-            border-radius: 30px;
-            min-height: 32px;
-            min-width: 32px;
-            border: none;
-            cursor: pointer;
-            font-family: inherit;
-            background: rgba(255,255,255,0.06);
-            color: #aeaeb2;
-            touch-action: manipulation;
-        }
-        .btn-sm:active { transform: scale(0.96); }
-        .btn-sm.btn-danger { background: rgba(255,69,58,0.15); color: #ff453a; }
+
         .more-btn {
             background: rgba(255,255,255,0.06);
             color: #aeaeb2;
@@ -761,6 +745,24 @@
         .toast.error i { color: #ff453a; }
         .toast.info i { color: #007aff; }
 
+        /* ===== 底部额外说明 ===== */
+        .footer-notice {
+            text-align: center;
+            padding: 12px 0 4px;
+            font-size: 0.8rem;
+            color: #8e8e93;
+            border-top: 0.5px solid rgba(255,255,255,0.04);
+            margin-top: 8px;
+            line-height: 1.8;
+        }
+        .footer-notice .highlight {
+            color: #ff9f0a;
+            font-weight: 500;
+        }
+        .footer-notice .admin {
+            color: #66b0ff;
+            font-weight: 600;
+        }
         .footer {
             text-align: center;
             padding: 16px 0 4px;
@@ -1073,7 +1075,7 @@
         <div id="rankEmpty" class="empty-state" style="display:none;padding:16px 0;"><i class="fas fa-heart" style="font-size:1.8rem;"></i><p>暂无推荐，快来推荐你喜欢的游戏吧！</p></div>
     </section>
 
-    <!-- ===== 搭子列表 ===== -->
+    <!-- ===== 搭子列表（无删除按钮） ===== -->
     <section class="card">
         <div class="card-title"><i class="fas fa-table"></i> <span>👥 搭子列表</span> <span style="font-size:0.7rem;font-weight:400;color:#636366;margin-left:auto;" id="recordCount">共 0 条</span></div>
 
@@ -1108,7 +1110,6 @@
                         <th>在线时间</th>
                         <th>语音方式</th>
                         <th>更多信息</th>
-                        <th style="text-align:center;">操作</th>
                     </tr>
                 </thead>
                 <tbody id="tableBody"></tbody>
@@ -1119,7 +1120,15 @@
         <div class="pagination" id="paginationControls"></div>
     </section>
 
-    <div class="footer"><i class="fas fa-copyright"></i> 网页解释权归 玩一辈子恐游的宝儿姐 所有</div>
+    <!-- ===== 底部提示（新增） ===== -->
+    <div class="footer-notice">
+        <div>已登记过的用户若无法登记或是无法重新登记，请联系管理员 <span class="admin">@潘安</span></div>
+        <div>该网页仅为 <span class="highlight">“玩一辈子恐游群”</span> 服务</div>
+    </div>
+    <div class="footer">
+        <i class="fas fa-copyright"></i> 网页解释权归 玩一辈子恐游的宝儿姐 所有
+    </div>
+
 </div>
 
 <!-- ===== Toast ===== -->
@@ -1253,9 +1262,9 @@
     let currentPage = 1;
     let pageSize = 10;
     let filteredPlayers = [];
+    let isSubmitting = false;
 
     const USERNAME_KEY = 'horror_buddy_username';
-    let isSubmitting = false;
 
     // ============================================================
     // 工具
@@ -1523,20 +1532,17 @@
             });
             playersData = playersArray;
             applyFiltersAndRender();
-            checkResetSection();
+            // 检查重新登记区块：仅当本地存储的用户名在数据库中存在时显示
+            const currentUser = getCurrentUsername();
+            if (currentUser && playersArray.some(p => p.username === currentUser)) {
+                resetSection.classList.add('show');
+            } else {
+                resetSection.classList.remove('show');
+            }
         });
     }
 
-    function checkResetSection() {
-        const currentUser = getCurrentUsername();
-        if (currentUser && playersData.some(p => p.username === currentUser)) {
-            resetSection.classList.add('show');
-        } else {
-            resetSection.classList.remove('show');
-        }
-    }
-
-    // ---------- 过滤、分页、渲染 ----------
+    // ---------- 过滤、分页、渲染（无删除按钮） ----------
     function getFilteredPlayers() {
         const keyword = searchInput.value.trim().toLowerCase();
         const gameFilter = filterGame.value;
@@ -1601,8 +1607,6 @@
         const end = Math.min(start + pageSize, total);
         const pageData = filteredPlayers.slice(start, end);
 
-        const currentUser = getCurrentUsername();
-
         let html = '';
         pageData.forEach((p, idx) => {
             const levelClass = { '萌新':'mengxin','普通':'putong','高手':'gaoshou','大手子':'dashouzi' } [p.level] || 'mengxin';
@@ -1624,9 +1628,6 @@
                 <div class="info-row"><span class="info-label">游戏时长</span><span class="info-value">${escapeHtml(p.duration||'—')}</span></div>
             `;
 
-            // 所有记录都显示删除按钮，点击后验证用户名
-            const deleteBtn = `<button class="btn-sm btn-danger" data-action="delete" data-username="${p.username}"><i class="fas fa-trash"></i> 删除</button>`;
-
             html += `
                 <tr>
                     <td>${start + idx + 1}</td>
@@ -1638,17 +1639,12 @@
                         <button class="btn-sm more-btn" data-more-id="${p._key}"><i class="fas fa-chevron-down"></i></button>
                         <div class="more-info" id="more-${p._key}">${moreInfo}</div>
                     </td>
-                    <td style="text-align:center;">
-                        <div class="action-btns">
-                            ${deleteBtn}
-                        </div>
-                    </td>
                 </tr>
             `;
         });
         tableBody.innerHTML = html;
 
-        // 更多信息
+        // 更多信息展开
         tableBody.querySelectorAll('.more-btn').forEach(btn => {
             btn.addEventListener('click', function() {
                 const key = this.dataset.moreId;
@@ -1660,33 +1656,6 @@
                     if (icon) icon.classList.toggle('fa-chevron-down');
                     if (icon) icon.classList.toggle('fa-chevron-up');
                 }
-            });
-        });
-
-        // 删除事件 - 所有记录都显示删除按钮，点击后验证用户名
-        tableBody.querySelectorAll('[data-action="delete"]').forEach(btn => {
-            btn.addEventListener('click', function() {
-                const username = this.dataset.username;
-                if (!username) return;
-                if (!confirm(`确认删除「${username}」的记录吗？`)) return;
-                // 提示输入用户名验证
-                const inputName = prompt(`请输入要删除的记录的用户名「${username}」以确认：`);
-                if (inputName === null) return;
-                if (inputName.trim() !== username) {
-                    showToast('用户名不匹配，删除失败', 'error');
-                    return;
-                }
-                const userKey = encodeUserKey(username);
-                playersRef.child(userKey).remove().then(() => {
-                    const currentUser = getCurrentUsername();
-                    if (currentUser === username) {
-                        localStorage.removeItem(USERNAME_KEY);
-                        resetSection.classList.remove('show');
-                    }
-                    showToast(`已删除 ${username}`, 'info');
-                }).catch(err => {
-                    showToast('删除失败: ' + err.message, 'error');
-                });
             });
         });
 
@@ -1828,7 +1797,7 @@
         const username = usernameInput.value.trim();
         if (!username) { showToast('请输入用户名', 'error'); usernameInput.focus(); isSubmitting = false; return; }
 
-        // 检查本地存储是否已有用户名且与当前输入不同
+        // 检查本地存储是否已有用户名（防止重复提交）
         const savedUser = getCurrentUsername();
         if (savedUser && savedUser !== username) {
             showToast(`您已登记为「${savedUser}」，请使用该用户名或点击「重新登记」更换用户`, 'error');
@@ -1836,6 +1805,7 @@
             return;
         }
 
+        // 主要游戏
         let mainGame = mainGameSelect.value;
         if (mainGame === '__manual__') {
             mainGame = mainManual.value.trim();
@@ -1844,7 +1814,7 @@
             showToast('请选择或输入主要游戏', 'error'); mainGameSelect.focus(); isSubmitting = false; return;
         }
 
-        // 检查数据库是否已存在该用户名
+        // 检查用户名是否已存在（数据库）
         const userKey = encodeUserKey(username);
         const userRef = playersRef.child(userKey);
         const snapshot = await userRef.once('value');
@@ -1897,10 +1867,10 @@
             localStorage.setItem(USERNAME_KEY, username);
             showToast(`🎉 ${username} 登记成功`, 'success');
             resetFormFields();
-            resetSection.classList.add('show');
-            isSubmitting = false;
+            // 重新登记区块会在数据监听中自动显示
         }).catch(err => {
             showToast('保存失败: ' + err.message, 'error');
+        }).finally(() => {
             isSubmitting = false;
         });
     });
@@ -1951,6 +1921,7 @@
         recommendGamesArray = [];
         renderTags(recommendTagContainer, recommendGamesArray, recommendGamesHidden, 3);
         updateRecommendHint();
+        // 确保预设行显示
         [mainPresetRow, alsoPresetRow, wantPresetRow, recommendPresetRow].forEach(row => row.style.display = 'flex');
         [mainManualRow, alsoManualRow, wantManualRow, recommendManualRow].forEach(row => row.classList.remove('show'));
 
