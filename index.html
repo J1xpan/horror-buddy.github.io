@@ -153,17 +153,17 @@
         }
         .form-group select option { background: #1c1c1e; color: #f5f5f7; }
 
-        /* ===== 主要游戏：预设行和手动输入行切换 ===== */
-        .main-game-row {
+        /* ===== 通用下拉+手动输入行 ===== */
+        .preset-row {
             display: flex;
             gap: 6px;
             align-items: center;
         }
-        .main-game-row select {
+        .preset-row select {
             flex: 1;
             min-height: 48px;
         }
-        .main-game-row .btn-add-preset {
+        .preset-row .btn-add-preset {
             background: rgba(0,122,255,0.15);
             border: none;
             border-radius: 30px;
@@ -178,17 +178,17 @@
             align-items: center;
             touch-action: manipulation;
         }
-        .main-game-row .btn-add-preset:active { transform: scale(0.96); }
+        .preset-row .btn-add-preset:active { transform: scale(0.96); }
 
-        .manual-input-row {
+        .manual-row {
             display: none;
             gap: 6px;
             align-items: center;
         }
-        .manual-input-row.show {
+        .manual-row.show {
             display: flex;
         }
-        .manual-input-row input {
+        .manual-row input {
             flex: 1;
             min-height: 48px;
             background: rgba(255,255,255,0.06);
@@ -199,12 +199,12 @@
             color: #f5f5f7;
             outline: none;
         }
-        .manual-input-row input:focus {
+        .manual-row input:focus {
             border-color: #007aff;
             background: rgba(255,255,255,0.08);
             box-shadow: 0 0 0 3px rgba(0,122,255,0.12);
         }
-        .manual-input-row .btn-cancel {
+        .manual-row .btn-cancel {
             background: rgba(255,255,255,0.06);
             border: none;
             border-radius: 30px;
@@ -219,117 +219,7 @@
             align-items: center;
             touch-action: manipulation;
         }
-        .manual-input-row .btn-cancel:active { transform: scale(0.96); }
-
-        /* ===== 标签输入 ===== */
-        .tag-section {
-            display: flex;
-            flex-direction: column;
-            gap: 6px;
-        }
-        .tag-preset-row {
-            display: flex;
-            flex-wrap: wrap;
-            gap: 6px;
-            align-items: center;
-        }
-        .tag-preset-row select {
-            flex: 1;
-            min-height: 48px;
-            background: rgba(255,255,255,0.06);
-            border: 0.5px solid rgba(255,255,255,0.08);
-            border-radius: 12px;
-            padding: 10px 14px;
-            font-size: 16px;
-            color: #f5f5f7;
-            outline: none;
-            font-family: inherit;
-            -webkit-appearance: none;
-            appearance: none;
-            background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='8' viewBox='0 0 12 8'%3E%3Cpath d='M1 1l5 5 5-5' stroke='%238e8e93' stroke-width='1.5' fill='none' stroke-linecap='round'/%3E%3C/svg%3E");
-            background-repeat: no-repeat;
-            background-position: right 14px center;
-            padding-right: 40px;
-        }
-        .tag-preset-row .btn-add-preset {
-            background: rgba(0,122,255,0.15);
-            border: none;
-            border-radius: 30px;
-            padding: 0 16px;
-            font-size: 0.85rem;
-            color: #66b0ff;
-            cursor: pointer;
-            font-family: inherit;
-            white-space: nowrap;
-            min-height: 48px;
-            display: flex;
-            align-items: center;
-            touch-action: manipulation;
-        }
-        .tag-preset-row .btn-add-preset:active { transform: scale(0.96); }
-        .tag-preset-hint { font-size: 0.7rem; color: #636366; margin-left: 4px; }
-        .tag-input-wrapper {
-            display: flex;
-            flex-wrap: wrap;
-            gap: 6px;
-            align-items: center;
-            background: rgba(255,255,255,0.06);
-            border: 0.5px solid rgba(255,255,255,0.08);
-            border-radius: 12px;
-            padding: 6px 10px;
-            transition: border-color 0.2s, background 0.2s;
-        }
-        .tag-input-wrapper:focus-within {
-            border-color: #007aff;
-            background: rgba(255,255,255,0.08);
-            box-shadow: 0 0 0 3px rgba(0,122,255,0.12);
-        }
-        .tag-item {
-            display: inline-flex;
-            align-items: center;
-            gap: 4px;
-            background: rgba(0,122,255,0.15);
-            border-radius: 30px;
-            padding: 4px 12px 4px 14px;
-            font-size: 0.85rem;
-            color: #66b0ff;
-            border: 0.5px solid rgba(0,122,255,0.15);
-        }
-        .tag-item i {
-            cursor: pointer;
-            font-size: 0.8rem;
-            color: #8e8e93;
-            padding: 4px;
-            touch-action: manipulation;
-        }
-        .tag-item i:active { color: #ff453a; }
-        .tag-input {
-            flex: 1;
-            min-width: 70px;
-            background: transparent;
-            border: none;
-            padding: 8px 4px;
-            font-size: 16px;
-            color: #f5f5f7;
-            outline: none;
-            font-family: inherit;
-        }
-        .tag-input::placeholder { color: #636366; font-size: 15px; }
-        .tag-add-btn {
-            background: rgba(255,255,255,0.06);
-            border: none;
-            border-radius: 30px;
-            padding: 0 14px;
-            font-size: 0.85rem;
-            color: #aeaeb2;
-            cursor: pointer;
-            font-family: inherit;
-            white-space: nowrap;
-            min-height: 40px;
-            display: flex;
-            align-items: center;
-        }
-        .tag-add-btn:active { transform: scale(0.96); }
+        .manual-row .btn-cancel:active { transform: scale(0.96); }
 
         /* ===== 水平 + 期望水平 同行 ===== */
         .level-row {
@@ -813,14 +703,8 @@
             .level-group, .expect-level-group {
                 grid-column: auto;
             }
-            .main-game-row {
+            .preset-row {
                 flex-wrap: nowrap;
-            }
-            .tag-preset-row {
-                flex-wrap: nowrap;
-            }
-            .tag-preset-row select {
-                flex: 1;
             }
         }
     </style>
@@ -859,114 +743,15 @@
                     </select>
                 </div>
 
-                <!-- 你主要玩的游戏 -->
+                <!-- 游戏时长（上移） -->
                 <div class="form-group">
-                    <label><i class="fas fa-gamepad"></i> 你主要玩的游戏</label>
-                    <div class="main-game-row" id="mainGamePresetRow">
-                        <select id="mainGame">
-                            <option value="">— 选择游戏 —</option>
-                            <option value="恐鬼症（Phasmophobia）">恐鬼症（Phasmophobia）</option>
-                            <option value="幽灵观察者">幽灵观察者</option>
-                            <option value="逃生：试炼">逃生：试炼</option>
-                            <option value="逃离后室（Inside the Backrooms）">逃离后室（Inside the Backrooms）</option>
-                            <option value="森林">森林</option>
-                            <option value="森林之子">森林之子</option>
-                            <option value="roblox">roblox</option>
-                            <option value="鬼魂">鬼魂</option>
-                            <option value="R.E.P.O.">R.E.P.O.</option>
-                            <option value="安抚">安抚</option>
-                            <option value="致命公司">致命公司</option>
-                            <option value="前方高能">前方高能</option>
-                            <option value="玩具熊的午夜后宫">玩具熊的午夜后宫</option>
-                            <option value="吞噬">吞噬</option>
-                            <option value="笼子">笼子</option>
-                            <option value="未知计划（Project Unknown）">未知计划（Project Unknown）</option>
-                            <option value="幽霾（Obscure）">幽霾（Obscure）</option>
-                            <option value="猜猜我是谁">猜猜我是谁</option>
-                            <option value="__manual__">✏️ 手动输入</option>
-                        </select>
-                        <button type="button" class="btn-add-preset" id="mainGamePresetAdd">添加</button>
-                    </div>
-                    <div class="manual-input-row" id="mainGameManualRow">
-                        <input type="text" id="mainGameManual" placeholder="请输入主要游戏名称" />
-                        <button type="button" class="btn-cancel" id="mainGameManualCancel">取消</button>
-                    </div>
-                </div>
-
-                <!-- 你也玩的游戏 -->
-                <div class="form-group">
-                    <label><i class="fas fa-plus-circle"></i> 你也玩的游戏</label>
-                    <div class="tag-section">
-                        <div class="tag-preset-row">
-                            <select id="alsoPreset">
-                                <option value="">— 选择预设 —</option>
-                                <option value="恐鬼症（Phasmophobia）">恐鬼症（Phasmophobia）</option>
-                                <option value="幽灵观察者">幽灵观察者</option>
-                                <option value="逃生：试炼">逃生：试炼</option>
-                                <option value="逃离后室（Inside the Backrooms）">逃离后室（Inside the Backrooms）</option>
-                                <option value="森林">森林</option>
-                                <option value="森林之子">森林之子</option>
-                                <option value="roblox">roblox</option>
-                                <option value="鬼魂">鬼魂</option>
-                                <option value="R.E.P.O.">R.E.P.O.</option>
-                                <option value="安抚">安抚</option>
-                                <option value="致命公司">致命公司</option>
-                                <option value="前方高能">前方高能</option>
-                                <option value="玩具熊的午夜后宫">玩具熊的午夜后宫</option>
-                                <option value="吞噬">吞噬</option>
-                                <option value="笼子">笼子</option>
-                                <option value="未知计划（Project Unknown）">未知计划（Project Unknown）</option>
-                                <option value="幽霾（Obscure）">幽霾（Obscure）</option>
-                                <option value="猜猜我是谁">猜猜我是谁</option>
-                            </select>
-                            <button type="button" class="btn-add-preset" id="alsoPresetAdd">添加</button>
-                            <span class="tag-preset-hint">选择后点击添加</span>
-                        </div>
-                        <div class="tag-input-wrapper" id="alsoTagWrapper">
-                            <div id="alsoTagContainer" style="display:flex;flex-wrap:wrap;gap:6px;align-items:center;"></div>
-                            <input type="text" class="tag-input" id="alsoInput" placeholder="或手动输入，按回车添加" />
-                            <button type="button" class="tag-add-btn" id="alsoAddBtn"><i class="fas fa-plus"></i> 添加</button>
-                        </div>
-                    </div>
-                    <input type="hidden" id="alsoHidden" value="[]" />
-                </div>
-
-                <!-- 你想玩什么游戏 -->
-                <div class="form-group">
-                    <label><i class="fas fa-rocket"></i> 你想玩什么游戏</label>
-                    <div class="tag-section">
-                        <div class="tag-preset-row">
-                            <select id="wantPreset">
-                                <option value="">— 选择预设 —</option>
-                                <option value="恐鬼症（Phasmophobia）">恐鬼症（Phasmophobia）</option>
-                                <option value="幽灵观察者">幽灵观察者</option>
-                                <option value="逃生：试炼">逃生：试炼</option>
-                                <option value="逃离后室（Inside the Backrooms）">逃离后室（Inside the Backrooms）</option>
-                                <option value="森林">森林</option>
-                                <option value="森林之子">森林之子</option>
-                                <option value="roblox">roblox</option>
-                                <option value="鬼魂">鬼魂</option>
-                                <option value="R.E.P.O.">R.E.P.O.</option>
-                                <option value="安抚">安抚</option>
-                                <option value="致命公司">致命公司</option>
-                                <option value="前方高能">前方高能</option>
-                                <option value="玩具熊的午夜后宫">玩具熊的午夜后宫</option>
-                                <option value="吞噬">吞噬</option>
-                                <option value="笼子">笼子</option>
-                                <option value="未知计划（Project Unknown）">未知计划（Project Unknown）</option>
-                                <option value="幽霾（Obscure）">幽霾（Obscure）</option>
-                                <option value="猜猜我是谁">猜猜我是谁</option>
-                            </select>
-                            <button type="button" class="btn-add-preset" id="wantPresetAdd">添加</button>
-                            <span class="tag-preset-hint">选择后点击添加</span>
-                        </div>
-                        <div class="tag-input-wrapper" id="wantTagWrapper">
-                            <div id="wantTagContainer" style="display:flex;flex-wrap:wrap;gap:6px;align-items:center;"></div>
-                            <input type="text" class="tag-input" id="wantInput" placeholder="或手动输入，按回车添加" />
-                            <button type="button" class="tag-add-btn" id="wantAddBtn"><i class="fas fa-plus"></i> 添加</button>
-                        </div>
-                    </div>
-                    <input type="hidden" id="wantHidden" value="[]" />
+                    <label><i class="fas fa-hourglass-half"></i> 游戏时长</label>
+                    <select id="duration">
+                        <option value="0-100">0-100 小时</option>
+                        <option value="100-200">100-200 小时</option>
+                        <option value="200-500">200-500 小时</option>
+                        <option value="500+">500+ 小时</option>
+                    </select>
                 </div>
 
                 <!-- 在线时间 -->
@@ -985,18 +770,7 @@
                     </div>
                 </div>
 
-                <!-- 游戏时长 -->
-                <div class="form-group">
-                    <label><i class="fas fa-hourglass-half"></i> 游戏时长</label>
-                    <select id="duration">
-                        <option value="0-100">0-100 小时</option>
-                        <option value="100-200">100-200 小时</option>
-                        <option value="200-500">200-500 小时</option>
-                        <option value="500+">500+ 小时</option>
-                    </select>
-                </div>
-
-                <!-- 你的水平 + 期望水平 -->
+                <!-- 水平 + 期望水平（上移） -->
                 <div class="level-row">
                     <div class="form-group level-group">
                         <label><i class="fas fa-star"></i> 你的水平</label>
@@ -1021,42 +795,145 @@
                     </div>
                 </div>
 
-                <!-- 推荐游戏 -->
-                <div class="form-group" style="grid-column:1/-1;">
-                    <label><i class="fas fa-heart"></i> 推荐游戏 <span style="font-weight:400;text-transform:none;color:#636366;">(最多3款)</span></label>
-                    <div class="tag-section">
-                        <div class="tag-preset-row">
-                            <select id="recommendPreset">
-                                <option value="">— 选择推荐游戏 —</option>
-                                <option value="恐鬼症（Phasmophobia）">恐鬼症（Phasmophobia）</option>
-                                <option value="幽灵观察者">幽灵观察者</option>
-                                <option value="逃生：试炼">逃生：试炼</option>
-                                <option value="逃离后室（Inside the Backrooms）">逃离后室（Inside the Backrooms）</option>
-                                <option value="森林">森林</option>
-                                <option value="森林之子">森林之子</option>
-                                <option value="roblox">roblox</option>
-                                <option value="鬼魂">鬼魂</option>
-                                <option value="R.E.P.O.">R.E.P.O.</option>
-                                <option value="安抚">安抚</option>
-                                <option value="致命公司">致命公司</option>
-                                <option value="前方高能">前方高能</option>
-                                <option value="玩具熊的午夜后宫">玩具熊的午夜后宫</option>
-                                <option value="吞噬">吞噬</option>
-                                <option value="笼子">笼子</option>
-                                <option value="未知计划（Project Unknown）">未知计划（Project Unknown）</option>
-                                <option value="幽霾（Obscure）">幽霾（Obscure）</option>
-                                <option value="猜猜我是谁">猜猜我是谁</option>
-                            </select>
-                            <button type="button" class="btn-add-preset" id="recommendPresetAdd">添加</button>
-                            <span class="tag-preset-hint" id="recommendRemainHint">还可推荐 3 款</span>
-                        </div>
-                        <div class="tag-input-wrapper" id="recommendTagWrapper">
-                            <div id="recommendTagContainer" style="display:flex;flex-wrap:wrap;gap:6px;align-items:center;"></div>
-                            <input type="text" class="tag-input" id="recommendInput" placeholder="或手动输入，按回车添加" />
-                            <button type="button" class="tag-add-btn" id="recommendAddBtn"><i class="fas fa-plus"></i> 添加</button>
-                        </div>
+                <!-- 四个带下拉+手动输入的字段，两两并排 -->
+                <!-- 主要游戏 -->
+                <div class="form-group">
+                    <label><i class="fas fa-gamepad"></i> 你主要玩的游戏</label>
+                    <div class="preset-row" id="mainPresetRow">
+                        <select id="mainGame">
+                            <option value="">— 选择游戏 —</option>
+                            <option value="恐鬼症（Phasmophobia）">恐鬼症（Phasmophobia）</option>
+                            <option value="幽灵观察者">幽灵观察者</option>
+                            <option value="逃生：试炼">逃生：试炼</option>
+                            <option value="逃离后室（Inside the Backrooms）">逃离后室（Inside the Backrooms）</option>
+                            <option value="森林">森林</option>
+                            <option value="森林之子">森林之子</option>
+                            <option value="roblox">roblox</option>
+                            <option value="鬼魂">鬼魂</option>
+                            <option value="R.E.P.O.">R.E.P.O.</option>
+                            <option value="安抚">安抚</option>
+                            <option value="致命公司">致命公司</option>
+                            <option value="前方高能">前方高能</option>
+                            <option value="玩具熊的午夜后宫">玩具熊的午夜后宫</option>
+                            <option value="吞噬">吞噬</option>
+                            <option value="笼子">笼子</option>
+                            <option value="未知计划（Project Unknown）">未知计划（Project Unknown）</option>
+                            <option value="幽霾（Obscure）">幽霾（Obscure）</option>
+                            <option value="猜猜我是谁">猜猜我是谁</option>
+                            <option value="__manual__">✏️ 手动输入</option>
+                        </select>
+                        <button type="button" class="btn-add-preset" id="mainPresetAdd">添加</button>
                     </div>
-                    <input type="hidden" id="recommendHidden" value="[]" />
+                    <div class="manual-row" id="mainManualRow">
+                        <input type="text" id="mainManual" placeholder="请输入主要游戏名称" />
+                        <button type="button" class="btn-cancel" id="mainManualCancel">取消</button>
+                    </div>
+                </div>
+
+                <!-- 也玩的游戏 -->
+                <div class="form-group">
+                    <label><i class="fas fa-plus-circle"></i> 你也玩的游戏</label>
+                    <div class="preset-row" id="alsoPresetRow">
+                        <select id="alsoGame">
+                            <option value="">— 选择游戏 —</option>
+                            <option value="恐鬼症（Phasmophobia）">恐鬼症（Phasmophobia）</option>
+                            <option value="幽灵观察者">幽灵观察者</option>
+                            <option value="逃生：试炼">逃生：试炼</option>
+                            <option value="逃离后室（Inside the Backrooms）">逃离后室（Inside the Backrooms）</option>
+                            <option value="森林">森林</option>
+                            <option value="森林之子">森林之子</option>
+                            <option value="roblox">roblox</option>
+                            <option value="鬼魂">鬼魂</option>
+                            <option value="R.E.P.O.">R.E.P.O.</option>
+                            <option value="安抚">安抚</option>
+                            <option value="致命公司">致命公司</option>
+                            <option value="前方高能">前方高能</option>
+                            <option value="玩具熊的午夜后宫">玩具熊的午夜后宫</option>
+                            <option value="吞噬">吞噬</option>
+                            <option value="笼子">笼子</option>
+                            <option value="未知计划（Project Unknown）">未知计划（Project Unknown）</option>
+                            <option value="幽霾（Obscure）">幽霾（Obscure）</option>
+                            <option value="猜猜我是谁">猜猜我是谁</option>
+                            <option value="__manual__">✏️ 手动输入</option>
+                        </select>
+                        <button type="button" class="btn-add-preset" id="alsoPresetAdd">添加</button>
+                    </div>
+                    <div class="manual-row" id="alsoManualRow">
+                        <input type="text" id="alsoManual" placeholder="请输入也玩的游戏名称" />
+                        <button type="button" class="btn-cancel" id="alsoManualCancel">取消</button>
+                    </div>
+                    <input type="hidden" id="alsoGamesHidden" value="[]" />
+                </div>
+
+                <!-- 你想玩什么游戏 -->
+                <div class="form-group">
+                    <label><i class="fas fa-rocket"></i> 你想玩什么游戏</label>
+                    <div class="preset-row" id="wantPresetRow">
+                        <select id="wantGame">
+                            <option value="">— 选择游戏 —</option>
+                            <option value="恐鬼症（Phasmophobia）">恐鬼症（Phasmophobia）</option>
+                            <option value="幽灵观察者">幽灵观察者</option>
+                            <option value="逃生：试炼">逃生：试炼</option>
+                            <option value="逃离后室（Inside the Backrooms）">逃离后室（Inside the Backrooms）</option>
+                            <option value="森林">森林</option>
+                            <option value="森林之子">森林之子</option>
+                            <option value="roblox">roblox</option>
+                            <option value="鬼魂">鬼魂</option>
+                            <option value="R.E.P.O.">R.E.P.O.</option>
+                            <option value="安抚">安抚</option>
+                            <option value="致命公司">致命公司</option>
+                            <option value="前方高能">前方高能</option>
+                            <option value="玩具熊的午夜后宫">玩具熊的午夜后宫</option>
+                            <option value="吞噬">吞噬</option>
+                            <option value="笼子">笼子</option>
+                            <option value="未知计划（Project Unknown）">未知计划（Project Unknown）</option>
+                            <option value="幽霾（Obscure）">幽霾（Obscure）</option>
+                            <option value="猜猜我是谁">猜猜我是谁</option>
+                            <option value="__manual__">✏️ 手动输入</option>
+                        </select>
+                        <button type="button" class="btn-add-preset" id="wantPresetAdd">添加</button>
+                    </div>
+                    <div class="manual-row" id="wantManualRow">
+                        <input type="text" id="wantManual" placeholder="请输入你想玩的游戏名称" />
+                        <button type="button" class="btn-cancel" id="wantManualCancel">取消</button>
+                    </div>
+                    <input type="hidden" id="wantGamesHidden" value="[]" />
+                </div>
+
+                <!-- 推荐游戏 -->
+                <div class="form-group">
+                    <label><i class="fas fa-heart"></i> 推荐游戏 <span style="font-weight:400;text-transform:none;color:#636366;">(最多3款)</span></label>
+                    <div class="preset-row" id="recommendPresetRow">
+                        <select id="recommendGame">
+                            <option value="">— 选择游戏 —</option>
+                            <option value="恐鬼症（Phasmophobia）">恐鬼症（Phasmophobia）</option>
+                            <option value="幽灵观察者">幽灵观察者</option>
+                            <option value="逃生：试炼">逃生：试炼</option>
+                            <option value="逃离后室（Inside the Backrooms）">逃离后室（Inside the Backrooms）</option>
+                            <option value="森林">森林</option>
+                            <option value="森林之子">森林之子</option>
+                            <option value="roblox">roblox</option>
+                            <option value="鬼魂">鬼魂</option>
+                            <option value="R.E.P.O.">R.E.P.O.</option>
+                            <option value="安抚">安抚</option>
+                            <option value="致命公司">致命公司</option>
+                            <option value="前方高能">前方高能</option>
+                            <option value="玩具熊的午夜后宫">玩具熊的午夜后宫</option>
+                            <option value="吞噬">吞噬</option>
+                            <option value="笼子">笼子</option>
+                            <option value="未知计划（Project Unknown）">未知计划（Project Unknown）</option>
+                            <option value="幽霾（Obscure）">幽霾（Obscure）</option>
+                            <option value="猜猜我是谁">猜猜我是谁</option>
+                            <option value="__manual__">✏️ 手动输入</option>
+                        </select>
+                        <button type="button" class="btn-add-preset" id="recommendPresetAdd">添加</button>
+                        <span class="tag-preset-hint" id="recommendRemainHint" style="font-size:0.7rem;color:#636366;margin-left:4px;">还可推荐 3 款</span>
+                    </div>
+                    <div class="manual-row" id="recommendManualRow">
+                        <input type="text" id="recommendManual" placeholder="请输入推荐游戏名称" />
+                        <button type="button" class="btn-cancel" id="recommendManualCancel">取消</button>
+                    </div>
+                    <input type="hidden" id="recommendGamesHidden" value="[]" />
                 </div>
 
                 <!-- 按钮 -->
@@ -1143,29 +1020,19 @@
 
 <script>
     // ============================================================
-    // Firebase 配置 (请替换成您自己的配置)
+    // Firebase 配置 (已替换为您提供的真实配置)
     // ============================================================
     const firebaseConfig = {
-  apiKey: "AIzaSyDVYlQZHk2H7q6bt6yuaynH9pMorbgsOg4",
-  authDomain: "horror-buddy-c4c15.firebaseapp.com",
-  projectId: "horror-buddy-c4c15",
-  storageBucket: "horror-buddy-c4c15.firebasestorage.app",
-  messagingSenderId: "773248848063",
-  appId: "1:773248848063:web:c7d18a1a6ed08bfb38b60a"
-};
+        apiKey: "AIzaSyDVYlQZHk2H7q6bt6yuaynH9pMorbgsOg4",
+        authDomain: "horror-buddy-c4c15.firebaseapp.com",
+        projectId: "horror-buddy-c4c15",
+        storageBucket: "horror-buddy-c4c15.firebasestorage.app",
+        messagingSenderId: "773248848063",
+        appId: "1:773248848063:web:c7d18a1a6ed08bfb38b60a"
+    };
 
-    // 检查配置是否被替换
-    if (firebaseConfig.apiKey === "YOUR_API_KEY") {
-        alert("⚠️ 请先替换 Firebase 配置！\n在代码中找到 firebaseConfig 对象，填入您自己的项目配置。");
-    }
-
-    // 初始化 Firebase
-    try {
-        firebase.initializeApp(firebaseConfig);
-    } catch (e) {
-        console.error("Firebase 初始化失败:", e);
-        alert("Firebase 初始化失败，请检查配置是否正确。");
-    }
+    // 初始化 Firebase (使用兼容库)
+    firebase.initializeApp(firebaseConfig);
     const database = firebase.database();
     const playersRef = database.ref('players');
 
@@ -1180,40 +1047,51 @@
     const onlineCustomWrap = document.getElementById('onlineCustomWrap');
     const durationSelect = document.getElementById('duration');
 
+    // 主要游戏
     const mainGameSelect = document.getElementById('mainGame');
-    const mainGamePresetRow = document.getElementById('mainGamePresetRow');
-    const mainGameManualRow = document.getElementById('mainGameManualRow');
-    const mainGameManual = document.getElementById('mainGameManual');
-    const mainGamePresetAdd = document.getElementById('mainGamePresetAdd');
-    const mainGameManualCancel = document.getElementById('mainGameManualCancel');
+    const mainPresetRow = document.getElementById('mainPresetRow');
+    const mainManualRow = document.getElementById('mainManualRow');
+    const mainManual = document.getElementById('mainManual');
+    const mainPresetAdd = document.getElementById('mainPresetAdd');
+    const mainManualCancel = document.getElementById('mainManualCancel');
 
-    const alsoInput = document.getElementById('alsoInput');
-    const alsoAddBtn = document.getElementById('alsoAddBtn');
-    const alsoTagContainer = document.getElementById('alsoTagContainer');
-    const alsoHidden = document.getElementById('alsoHidden');
-    const alsoPreset = document.getElementById('alsoPreset');
+    // 也玩的游戏
+    const alsoGameSelect = document.getElementById('alsoGame');
+    const alsoPresetRow = document.getElementById('alsoPresetRow');
+    const alsoManualRow = document.getElementById('alsoManualRow');
+    const alsoManual = document.getElementById('alsoManual');
     const alsoPresetAdd = document.getElementById('alsoPresetAdd');
+    const alsoManualCancel = document.getElementById('alsoManualCancel');
+    const alsoGamesHidden = document.getElementById('alsoGamesHidden');
+    let alsoGamesArray = [];
 
-    const wantInput = document.getElementById('wantInput');
-    const wantAddBtn = document.getElementById('wantAddBtn');
-    const wantTagContainer = document.getElementById('wantTagContainer');
-    const wantHidden = document.getElementById('wantHidden');
-    const wantPreset = document.getElementById('wantPreset');
+    // 你想玩的游戏
+    const wantGameSelect = document.getElementById('wantGame');
+    const wantPresetRow = document.getElementById('wantPresetRow');
+    const wantManualRow = document.getElementById('wantManualRow');
+    const wantManual = document.getElementById('wantManual');
     const wantPresetAdd = document.getElementById('wantPresetAdd');
+    const wantManualCancel = document.getElementById('wantManualCancel');
+    const wantGamesHidden = document.getElementById('wantGamesHidden');
+    let wantGamesArray = [];
 
-    const recommendInput = document.getElementById('recommendInput');
-    const recommendAddBtn = document.getElementById('recommendAddBtn');
-    const recommendTagContainer = document.getElementById('recommendTagContainer');
-    const recommendHidden = document.getElementById('recommendHidden');
-    const recommendPreset = document.getElementById('recommendPreset');
+    // 推荐游戏
+    const recommendGameSelect = document.getElementById('recommendGame');
+    const recommendPresetRow = document.getElementById('recommendPresetRow');
+    const recommendManualRow = document.getElementById('recommendManualRow');
+    const recommendManual = document.getElementById('recommendManual');
     const recommendPresetAdd = document.getElementById('recommendPresetAdd');
+    const recommendManualCancel = document.getElementById('recommendManualCancel');
+    const recommendGamesHidden = document.getElementById('recommendGamesHidden');
     const recommendRemainHint = document.getElementById('recommendRemainHint');
+    let recommendGamesArray = [];
 
     const levelSelector = document.getElementById('levelSelector');
     const levelInput = document.getElementById('level');
 
     const expectedLevelSelector = document.getElementById('expectedLevelSelector');
     const expectedLevelsHidden = document.getElementById('expectedLevelsHidden');
+    let expectedLevels = [];
 
     const submitBtn = document.getElementById('submitBtn');
     const resetBtn = document.getElementById('resetBtn');
@@ -1255,11 +1133,6 @@
     let editingId = null;
     let toastTimer = null;
 
-    let alsoArray = [];
-    let wantArray = [];
-    let recommendArray = [];
-    let expectedLevels = [];
-
     let currentPage = 1;
     let pageSize = 10;
     let filteredPlayers = [];
@@ -1297,57 +1170,152 @@
         return localStorage.getItem(STORAGE_KEY) === 'true';
     }
 
-    // ---------- 标签渲染 ----------
-    function renderTags(container, array, hiddenInput, maxItems) {
-        container.innerHTML = '';
-        array.forEach((item, idx) => {
-            const span = document.createElement('span');
-            span.className = 'tag-item';
-            span.innerHTML = `${escapeHtml(item)} <i class="fas fa-times-circle" data-idx="${idx}"></i>`;
-            container.appendChild(span);
+    // ---------- 通用下拉+手动切换 ----------
+    function setupPresetManual(selectEl, presetRow, manualRow, manualInput, cancelBtn) {
+        function showManual() {
+            presetRow.style.display = 'none';
+            manualRow.classList.add('show');
+            manualInput.focus();
+        }
+        function showPreset() {
+            presetRow.style.display = 'flex';
+            manualRow.classList.remove('show');
+            manualInput.value = '';
+            selectEl.value = '';
+        }
+        selectEl.addEventListener('change', function() {
+            if (this.value === '__manual__') {
+                showManual();
+            }
         });
-        container.querySelectorAll('.tag-item i').forEach(icon => {
-            icon.addEventListener('click', function(e) {
-                e.stopPropagation();
-                const idx = parseInt(this.dataset.idx);
-                array.splice(idx, 1);
-                if (hiddenInput) hiddenInput.value = JSON.stringify(array);
-                renderTags(container, array, hiddenInput, maxItems);
-                updateRecommendHint();
-            });
-        });
-        if (hiddenInput) hiddenInput.value = JSON.stringify(array);
+        cancelBtn.addEventListener('click', showPreset);
+        return { showManual, showPreset };
     }
 
-    function addTag(array, value, container, hiddenInput, maxItems) {
+    // ---------- 标签数组管理 ----------
+    function renderHiddenTags(container, array, hiddenInput) {
+        hiddenInput.value = JSON.stringify(array);
+    }
+
+    function addToArray(array, value, hiddenInput, maxItems, callback) {
         const trimmed = value.trim();
         if (!trimmed) return false;
         if (array.includes(trimmed)) { showToast('已存在', 'error'); return false; }
-        if (maxItems && array.length >= maxItems) { showToast(`最多推荐 ${maxItems} 款游戏`, 'error'); return false; }
+        if (maxItems && array.length >= maxItems) { showToast(`最多 ${maxItems} 项`, 'error'); return false; }
         array.push(trimmed);
-        renderTags(container, array, hiddenInput, maxItems);
-        updateRecommendHint();
+        renderHiddenTags(null, array, hiddenInput);
+        if (callback) callback(array);
         return true;
     }
 
-    function addPresetSingle(selectElem, array, container, hiddenInput, maxItems) {
-        const val = selectElem.value;
-        if (!val) { showToast('请选择一个游戏', 'error'); return; }
-        if (array.includes(val)) { showToast('已存在', 'error'); return; }
-        if (maxItems && array.length >= maxItems) { showToast(`最多推荐 ${maxItems} 款，已达上限`, 'error'); return; }
-        array.push(val);
-        renderTags(container, array, hiddenInput, maxItems);
-        updateRecommendHint();
-        selectElem.value = '';
-        showToast(`已添加「${val}」`, 'success');
-    }
+    // ---------- 设置每个下拉的“添加”按钮 ----------
+    // 主要游戏：直接选择，无需数组
+    mainPresetAdd.addEventListener('click', function() {
+        const val = mainGameSelect.value;
+        if (!val || val === '__manual__') {
+            showToast('请选择一个游戏', 'error');
+            return;
+        }
+        showToast(`已选择「${val}」`, 'success');
+    });
+
+    // 也玩的游戏
+    alsoPresetAdd.addEventListener('click', function() {
+        let val = alsoGameSelect.value;
+        if (val === '__manual__') {
+            val = alsoManual.value.trim();
+            if (!val) { showToast('请手动输入游戏名称', 'error'); alsoManual.focus(); return; }
+        } else if (!val) {
+            showToast('请选择一个游戏或手动输入', 'error');
+            return;
+        }
+        if (addToArray(alsoGamesArray, val, alsoGamesHidden)) {
+            alsoGameSelect.value = '';
+            alsoManual.value = '';
+            showToast(`已添加「${val}」`, 'success');
+        }
+    });
+    alsoManual.addEventListener('keydown', function(e) {
+        if (e.key === 'Enter') {
+            e.preventDefault();
+            const val = this.value.trim();
+            if (val) {
+                if (addToArray(alsoGamesArray, val, alsoGamesHidden)) {
+                    this.value = '';
+                    showToast(`已添加「${val}」`, 'success');
+                }
+            }
+        }
+    });
+
+    // 想玩的游戏
+    wantPresetAdd.addEventListener('click', function() {
+        let val = wantGameSelect.value;
+        if (val === '__manual__') {
+            val = wantManual.value.trim();
+            if (!val) { showToast('请手动输入游戏名称', 'error'); wantManual.focus(); return; }
+        } else if (!val) {
+            showToast('请选择一个游戏或手动输入', 'error');
+            return;
+        }
+        if (addToArray(wantGamesArray, val, wantGamesHidden)) {
+            wantGameSelect.value = '';
+            wantManual.value = '';
+            showToast(`已添加「${val}」`, 'success');
+        }
+    });
+    wantManual.addEventListener('keydown', function(e) {
+        if (e.key === 'Enter') {
+            e.preventDefault();
+            const val = this.value.trim();
+            if (val) {
+                if (addToArray(wantGamesArray, val, wantGamesHidden)) {
+                    this.value = '';
+                    showToast(`已添加「${val}」`, 'success');
+                }
+            }
+        }
+    });
+
+    // 推荐游戏
+    recommendPresetAdd.addEventListener('click', function() {
+        let val = recommendGameSelect.value;
+        if (val === '__manual__') {
+            val = recommendManual.value.trim();
+            if (!val) { showToast('请手动输入游戏名称', 'error'); recommendManual.focus(); return; }
+        } else if (!val) {
+            showToast('请选择一个游戏或手动输入', 'error');
+            return;
+        }
+        if (addToArray(recommendGamesArray, val, recommendGamesHidden, 3, updateRecommendHint)) {
+            recommendGameSelect.value = '';
+            recommendManual.value = '';
+            showToast(`已添加「${val}」`, 'success');
+        }
+    });
+    recommendManual.addEventListener('keydown', function(e) {
+        if (e.key === 'Enter') {
+            e.preventDefault();
+            const val = this.value.trim();
+            if (val) {
+                if (addToArray(recommendGamesArray, val, recommendGamesHidden, 3, updateRecommendHint)) {
+                    this.value = '';
+                    showToast(`已添加「${val}」`, 'success');
+                }
+            }
+        }
+    });
 
     function updateRecommendHint() {
-        if (recommendRemainHint) {
-            const remain = 3 - recommendArray.length;
-            recommendRemainHint.textContent = remain > 0 ? `还可推荐 ${remain} 款` : '已达上限';
-        }
+        const remain = 3 - recommendGamesArray.length;
+        recommendRemainHint.textContent = remain > 0 ? `还可推荐 ${remain} 款` : '已达上限';
     }
+
+    // 初始化各下拉+手动切换
+    setupPresetManual(mainGameSelect, mainPresetRow, mainManualRow, mainManual, mainManualCancel);
+    setupPresetManual(alsoGameSelect, alsoPresetRow, alsoManualRow, alsoManual, alsoManualCancel);
+    setupPresetManual(wantGameSelect, wantPresetRow, wantManualRow, wantManual, wantManualCancel);
+    setupPresetManual(recommendGameSelect, recommendPresetRow, recommendManualRow, recommendManual, recommendManualCancel);
 
     // ---------- 期望水平 ----------
     function renderExpectedLevels() {
@@ -1402,97 +1370,6 @@
                 this.classList.remove('error');
             }
         }
-    });
-
-    // ---------- 主要游戏 手动输入切换 ----------
-    function showManualInput() {
-        mainGamePresetRow.style.display = 'none';
-        mainGameManualRow.classList.add('show');
-        mainGameManual.focus();
-    }
-
-    function showPresetInput() {
-        mainGamePresetRow.style.display = 'flex';
-        mainGameManualRow.classList.remove('show');
-        mainGameManual.value = '';
-        mainGameSelect.value = '';
-    }
-
-    mainGameSelect.addEventListener('change', function() {
-        if (this.value === '__manual__') {
-            showManualInput();
-        }
-    });
-
-    mainGameManualCancel.addEventListener('click', function() {
-        showPresetInput();
-    });
-
-    mainGamePresetAdd.addEventListener('click', function() {
-        const val = mainGameSelect.value;
-        if (!val || val === '__manual__') {
-            showToast('请选择一个游戏', 'error');
-            return;
-        }
-        showToast(`已选择「${val}」`, 'success');
-    });
-
-    // ---------- 标签添加事件 ----------
-    alsoAddBtn.addEventListener('click', function() {
-        if (addTag(alsoArray, alsoInput.value, alsoTagContainer, alsoHidden)) {
-            alsoInput.value = '';
-            alsoInput.focus();
-        }
-    });
-    alsoInput.addEventListener('keydown', function(e) {
-        if (e.key === 'Enter') {
-            e.preventDefault();
-            if (addTag(alsoArray, alsoInput.value, alsoTagContainer, alsoHidden)) {
-                alsoInput.value = '';
-            }
-        }
-    });
-    alsoPresetAdd.addEventListener('click', function() {
-        addPresetSingle(alsoPreset, alsoArray, alsoTagContainer, alsoHidden);
-    });
-
-    wantAddBtn.addEventListener('click', function() {
-        if (addTag(wantArray, wantInput.value, wantTagContainer, wantHidden)) {
-            wantInput.value = '';
-            wantInput.focus();
-        }
-    });
-    wantInput.addEventListener('keydown', function(e) {
-        if (e.key === 'Enter') {
-            e.preventDefault();
-            if (addTag(wantArray, wantInput.value, wantTagContainer, wantHidden)) {
-                wantInput.value = '';
-            }
-        }
-    });
-    wantPresetAdd.addEventListener('click', function() {
-        addPresetSingle(wantPreset, wantArray, wantTagContainer, wantHidden);
-    });
-
-    recommendAddBtn.addEventListener('click', function() {
-        if (addTag(recommendArray, recommendInput.value, recommendTagContainer, recommendHidden, 3)) {
-            recommendInput.value = '';
-            recommendInput.focus();
-        }
-        updateRecommendHint();
-    });
-    recommendInput.addEventListener('keydown', function(e) {
-        if (e.key === 'Enter') {
-            e.preventDefault();
-            if (addTag(recommendArray, recommendInput.value, recommendTagContainer, recommendHidden, 3)) {
-                recommendInput.value = '';
-            }
-            updateRecommendHint();
-        }
-    });
-    recommendPresetAdd.addEventListener('click', function() {
-        addPresetSingle(recommendPreset, recommendArray, recommendTagContainer, recommendHidden, 3);
-        updateRecommendHint();
     });
 
     // ---------- Firebase 数据加载 ----------
@@ -1739,32 +1616,24 @@
         formTitle.textContent = '📝 登记你的游戏信息';
         submitBtn.innerHTML = '<i class="fas fa-save"></i> 登记';
         editHint.style.display = 'none';
-        form.reset();
-        alsoArray = [];
-        renderTags(alsoTagContainer, alsoArray, alsoHidden);
-        wantArray = [];
-        renderTags(wantTagContainer, wantArray, wantHidden);
-        recommendArray = [];
-        renderTags(recommendTagContainer, recommendArray, recommendHidden, 3);
-        updateRecommendHint();
-        setLevel('萌新');
-        expectedLevels = [];
-        renderExpectedLevels();
-        onlineCustomWrap.classList.remove('show');
-        onlineTimeCustom.value = '';
-        onlineTimeCustom.classList.remove('error');
-        showPresetInput();
+        resetFormFields();
     }
 
-    // ---------- 重置表单（工具函数） ----------
+    // ---------- 重置表单 ----------
     function resetFormFields() {
         form.reset();
-        alsoArray = [];
-        renderTags(alsoTagContainer, alsoArray, alsoHidden);
-        wantArray = [];
-        renderTags(wantTagContainer, wantArray, wantHidden);
-        recommendArray = [];
-        renderTags(recommendTagContainer, recommendArray, recommendHidden, 3);
+        // 重置所有下拉和手动
+        [mainGameSelect, alsoGameSelect, wantGameSelect, recommendGameSelect].forEach(sel => sel.value = '');
+        // 重置手动行
+        [mainManualRow, alsoManualRow, wantManualRow, recommendManualRow].forEach(row => row.classList.remove('show'));
+        [mainPresetRow, alsoPresetRow, wantPresetRow, recommendPresetRow].forEach(row => row.style.display = 'flex');
+        // 清空数组
+        alsoGamesArray = [];
+        renderHiddenTags(null, alsoGamesArray, alsoGamesHidden);
+        wantGamesArray = [];
+        renderHiddenTags(null, wantGamesArray, wantGamesHidden);
+        recommendGamesArray = [];
+        renderHiddenTags(null, recommendGamesArray, recommendGamesHidden);
         updateRecommendHint();
         setLevel('萌新');
         expectedLevels = [];
@@ -1772,7 +1641,6 @@
         onlineCustomWrap.classList.remove('show');
         onlineTimeCustom.value = '';
         onlineTimeCustom.classList.remove('error');
-        showPresetInput();
     }
 
     // ---------- 表单提交 ----------
@@ -1782,20 +1650,23 @@
         const username = usernameInput.value.trim();
         if (!username) { showToast('请输入用户名', 'error'); usernameInput.focus(); return; }
 
+        // 主要游戏
         let mainGame = mainGameSelect.value;
         if (mainGame === '__manual__') {
-            mainGame = mainGameManual.value.trim();
-            if (!mainGame) { showToast('请手动输入主要游戏名称', 'error'); mainGameManual.focus(); return; }
+            mainGame = mainManual.value.trim();
+            if (!mainGame) { showToast('请手动输入主要游戏名称', 'error'); mainManual.focus(); return; }
         } else if (!mainGame) {
             showToast('请选择或输入主要游戏', 'error'); mainGameSelect.focus(); return;
         }
 
+        // 检查用户名重复
         const existing = Object.values(playersData).find(p => p.username === username);
         if (existing && !editingId) {
             showToast(`用户名 "${username}" 已被登记，请勿重复提交`, 'error');
             return;
         }
 
+        // 在线时间
         const onlineTimeTypeVal = onlineTimeType.value;
         let onlineTimeCustomVal = '';
         if (onlineTimeTypeVal === '自定义') {
@@ -1812,13 +1683,13 @@
             username: username,
             voiceSoftware: voiceSelect.value,
             mainGame: mainGame,
-            alsoGames: alsoArray.slice(),
-            wantGames: wantArray.slice(),
+            alsoGames: alsoGamesArray.slice(),
+            wantGames: wantGamesArray.slice(),
             onlineTimeType: onlineTimeTypeVal,
             onlineTimeCustom: onlineTimeCustomVal,
             duration: durationSelect.value,
             level: levelInput.value,
-            recommendedGames: recommendArray.slice(),
+            recommendedGames: recommendGamesArray.slice(),
             expectedLevels: expectedLevels.slice(),
         };
 
@@ -1829,11 +1700,11 @@
                 localStorage.setItem(USERNAME_KEY, username);
                 document.getElementById('formCard').style.display = 'none';
                 showToast(`🎉 ${username} 登记成功`, 'success');
-                resetFormFields(); // 重置所有字段
+                resetFormFields();
             })
             .catch(err => {
                 showToast('保存失败: ' + err.message, 'error');
-                resetFormFields(); // 失败也重置，但卡片保持可见
+                resetFormFields();
             });
     });
 
@@ -1888,14 +1759,16 @@
         setLevel('萌新');
         expectedLevels = [];
         renderExpectedLevels();
-        alsoArray = [];
-        renderTags(alsoTagContainer, alsoArray, alsoHidden);
-        wantArray = [];
-        renderTags(wantTagContainer, wantArray, wantHidden);
-        recommendArray = [];
-        renderTags(recommendTagContainer, recommendArray, recommendHidden, 3);
+        alsoGamesArray = [];
+        renderHiddenTags(null, alsoGamesArray, alsoGamesHidden);
+        wantGamesArray = [];
+        renderHiddenTags(null, wantGamesArray, wantGamesHidden);
+        recommendGamesArray = [];
+        renderHiddenTags(null, recommendGamesArray, recommendGamesHidden);
         updateRecommendHint();
-        showPresetInput();
+        // 确保所有下拉预设行显示
+        [mainPresetRow, alsoPresetRow, wantPresetRow, recommendPresetRow].forEach(row => row.style.display = 'flex');
+        [mainManualRow, alsoManualRow, wantManualRow, recommendManualRow].forEach(row => row.classList.remove('show'));
 
         loadDataFromFirebase();
 
