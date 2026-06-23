@@ -1033,7 +1033,7 @@
 
 <script>
     // ============================================================
-    // Firebase 配置（请替换为您自己的项目配置）
+    // Firebase 配置（已使用您原有的配置）
     // ============================================================
     const firebaseConfig = {
         apiKey: "AIzaSyDVYlQZHk2H7q6bt6yuaynH9pMorbgsOg4",
@@ -1045,24 +1045,29 @@
         appId: "1:773248848063:web:c7d18a1a6ed08bfb38b60a"
     };
 
-    if (!firebaseConfig.databaseURL || firebaseConfig.databaseURL === "") {
-        alert("⚠️ 请检查 Firebase 配置，databaseURL 不能为空！");
-    }
-
-    let firebaseInitialized = false;
-    try {
-        firebase.initializeApp(firebaseConfig);
-        firebaseInitialized = true;
-    } catch (e) {
-        console.error("Firebase 初始化失败:", e);
-        alert("Firebase 初始化失败，请检查配置是否正确。");
-    }
+    // ============================================================
+    // 初始化 Firebase
+    // ============================================================
+    firebase.initializeApp(firebaseConfig);
     const database = firebase.database();
     const playersRef = database.ref('players');
 
     // ============================================================
-    // DOM 引用
+    // 全局变量与 DOM 引用
     // ============================================================
+    let currentUid = null;
+    let firebaseReady = false;
+    let playersData = [];
+    let currentPage = 1;
+    let pageSize = 10;
+    let filteredPlayers = [];
+    let isSubmitting = false;
+    let alsoGamesArray = [];
+    let wantGamesArray = [];
+    let recommendGamesArray = [];
+    let expectedLevels = [];
+
+    // DOM 元素
     const form = document.getElementById('playerForm');
     const usernameInput = document.getElementById('username');
     const voiceSelect = document.getElementById('voiceSoftware');
@@ -1087,7 +1092,6 @@
     const alsoManualCancel = document.getElementById('alsoManualCancel');
     const alsoTagContainer = document.getElementById('alsoTagContainer');
     const alsoGamesHidden = document.getElementById('alsoGamesHidden');
-    let alsoGamesArray = [];
 
     const wantGameSelect = document.getElementById('wantGame');
     const wantPresetRow = document.getElementById('wantPresetRow');
@@ -1097,7 +1101,6 @@
     const wantManualCancel = document.getElementById('wantManualCancel');
     const wantTagContainer = document.getElementById('wantTagContainer');
     const wantGamesHidden = document.getElementById('wantGamesHidden');
-    let wantGamesArray = [];
 
     const recommendGameSelect = document.getElementById('recommendGame');
     const recommendPresetRow = document.getElementById('recommendPresetRow');
@@ -1108,14 +1111,12 @@
     const recommendTagContainer = document.getElementById('recommendTagContainer');
     const recommendGamesHidden = document.getElementById('recommendGamesHidden');
     const recommendRemainHint = document.getElementById('recommendRemainHint');
-    let recommendGamesArray = [];
 
     const levelSelector = document.getElementById('levelSelector');
     const levelInput = document.getElementById('level');
 
     const expectedLevelSelector = document.getElementById('expectedLevelSelector');
     const expectedLevelsHidden = document.getElementById('expectedLevelsHidden');
-    let expectedLevels = [];
 
     const submitBtn = document.getElementById('submitBtn');
     const resetBtn = document.getElementById('resetBtn');
@@ -1159,18 +1160,7 @@
     const closeModalBtn = document.getElementById('closeModalBtn');
 
     // ============================================================
-    // 状态
-    // ============================================================
-    let playersData = [];
-    let currentPage = 1;
-    let pageSize = 10;
-    let filteredPlayers = [];
-    let isSubmitting = false;
-
-    const USERNAME_KEY = 'horror_buddy_username';
-
-    // ============================================================
-    // 核心逻辑
+    // 工具函数
     // ============================================================
     function showToast(message, type = 'success') {
         if (window.toastTimer) clearTimeout(window.toastTimer);
@@ -1193,24 +1183,12 @@
     }
 
     function getCurrentUsername() {
-        return localStorage.getItem(USERNAME_KEY) || '';
+        return localStorage.getItem('horror_buddy_username') || '';
     }
 
-    function encodeUserKey(username) {
-        return encodeURIComponent(username);
-    }
-
-    // ---------- 切换显示 ----------
-    function toggleDisplay() {
-        const savedUser = getCurrentUsername();
-        if (savedUser) {
-            resetUsernameDisplay.textContent = savedUser;
-            resetSection.classList.add('show');
-            formCard.style.display = 'none';
-        } else {
-            resetSection.classList.remove('show');
-            formCard.style.display = 'block';
-        }
+    function setCurrentUsername(name) {
+        if (name) localStorage.setItem('horror_buddy_username', name);
+        else localStorage.removeItem('horror_buddy_username');
     }
 
     // ---------- 标签渲染 ----------
@@ -1437,37 +1415,93 @@
         }
     });
 
-    // ---------- 数据加载 ----------
-    function loadDataFromFirebase() {
-        if (!firebaseInitialized) return;
-        playersRef.on('value', snapshot => {
-            const data = snapshot.val() || {};
-            const playersArray = Object.entries(data).map(([key, value]) => {
-                const username = decodeURIComponent(key);
-                return { ...value, username, _key: key };
-            });
-            playersData = playersArray;
-            applyFiltersAndRender();
-            const savedUser = getCurrentUsername();
-            if (savedUser) {
-                const exists = playersArray.some(p => p.username === savedUser);
-                if (!exists) {
-                    localStorage.removeItem(USERNAME_KEY);
-                    toggleDisplay();
-                    showToast('检测到您的记录已被管理员删除，已自动清除本地记录', 'warning');
-                } else {
-                    resetUsernameDisplay.textContent = savedUser;
-                    resetSection.classList.add('show');
-                    formCard.style.display = 'none';
-                }
-            } else {
-                resetSection.classList.remove('show');
-                formCard.style.display = 'block';
-            }
-        });
+    // ---------- 重置表单 ----------
+    function resetFormFields() {
+        form.reset();
+        [mainGameSelect, alsoGameSelect, wantGameSelect, recommendGameSelect].forEach(sel => sel.value = '');
+        [mainManualRow, alsoManualRow, wantManualRow, recommendManualRow].forEach(row => row.classList.remove('show'));
+        [mainPresetRow, alsoPresetRow, wantPresetRow, recommendPresetRow].forEach(row => row.style.display = 'flex');
+        alsoGamesArray = [];
+        renderTags(alsoTagContainer, alsoGamesArray, alsoGamesHidden);
+        wantGamesArray = [];
+        renderTags(wantTagContainer, wantGamesArray, wantGamesHidden);
+        recommendGamesArray = [];
+        renderTags(recommendTagContainer, recommendGamesArray, recommendGamesHidden, 3);
+        updateRecommendHint();
+        setLevel('萌新');
+        expectedLevels = [];
+        renderExpectedLevels();
+        onlineCustomWrap.classList.remove('show');
+        onlineTimeCustom.value = '';
+        maskPlaceholder.classList.remove('hidden');
+        onlineTimeCustom.classList.remove('error');
     }
 
-    // ---------- 过滤、分页、渲染 ----------
+    // ---------- 显示切换 ----------
+    function toggleDisplay() {
+        const savedUser = getCurrentUsername();
+        if (savedUser && currentUid) {
+            playersRef.child(currentUid).once('value').then(snapshot => {
+                if (snapshot.exists()) {
+                    const data = snapshot.val();
+                    resetUsernameDisplay.textContent = data.username || savedUser;
+                    resetSection.classList.add('show');
+                    formCard.style.display = 'none';
+                } else {
+                    setCurrentUsername('');
+                    resetSection.classList.remove('show');
+                    formCard.style.display = 'block';
+                }
+            });
+        } else {
+            resetSection.classList.remove('show');
+            formCard.style.display = 'block';
+        }
+    }
+
+    // ---------- 统计与榜单 ----------
+    function updateStatsAndRank() {
+        const total = playersData.length;
+        totalCount.textContent = total;
+        let m = 0, p = 0, g = 0, d = 0;
+        const gameSet = new Set();
+        playersData.forEach(player => {
+            const level = player.level || '萌新';
+            if (level === '萌新') m++;
+            else if (level === '普通') p++;
+            else if (level === '高手') g++;
+            else if (level === '大手子') d++;
+            if (player.mainGame) gameSet.add(player.mainGame);
+            (player.alsoGames || []).forEach(gm => gameSet.add(gm));
+        });
+        mengxinCount.textContent = m;
+        putongCount.textContent = p;
+        gaoshouCount.textContent = g;
+        dashouziCount.textContent = d;
+        gameCount.textContent = gameSet.size;
+
+        const voteMap = new Map();
+        playersData.forEach(p => {
+            (p.recommendedGames || []).forEach(game => {
+                voteMap.set(game, (voteMap.get(game) || 0) + 1);
+            });
+        });
+        const sorted = Array.from(voteMap.entries()).sort((a, b) => b[1] - a[1]);
+        rankList.innerHTML = '';
+        if (sorted.length === 0) {
+            rankEmpty.style.display = 'block';
+        } else {
+            rankEmpty.style.display = 'none';
+            sorted.forEach(([game, votes]) => {
+                const div = document.createElement('div');
+                div.className = 'rank-item';
+                div.innerHTML = `<span class="rank-game">${escapeHtml(game)}</span><span class="rank-votes">${votes} 票</span>`;
+                rankList.appendChild(div);
+            });
+        }
+    }
+
+    // ---------- 过滤、分页、渲染表格 ----------
     function getFilteredPlayers() {
         const keyword = searchInput.value.trim().toLowerCase();
         const gameFilter = filterGame.value;
@@ -1495,8 +1529,46 @@
         return filtered;
     }
 
+    function renderPagination(totalPages) {
+        paginationControls.innerHTML = '';
+        if (totalPages <= 1) return;
+
+        const prevBtn = document.createElement('button');
+        prevBtn.textContent = '‹';
+        prevBtn.disabled = currentPage === 1;
+        prevBtn.addEventListener('click', () => {
+            if (currentPage > 1) { currentPage--; applyFiltersAndRender(); }
+        });
+        paginationControls.appendChild(prevBtn);
+
+        const maxVisible = 5;
+        let startPage = Math.max(1, currentPage - Math.floor(maxVisible / 2));
+        let endPage = Math.min(totalPages, startPage + maxVisible - 1);
+        if (endPage - startPage + 1 < maxVisible) startPage = Math.max(1, endPage - maxVisible + 1);
+
+        for (let i = startPage; i <= endPage; i++) {
+            const btn = document.createElement('button');
+            btn.textContent = i;
+            if (i === currentPage) btn.classList.add('active');
+            btn.addEventListener('click', () => {
+                currentPage = i;
+                applyFiltersAndRender();
+            });
+            paginationControls.appendChild(btn);
+        }
+
+        const nextBtn = document.createElement('button');
+        nextBtn.textContent = '›';
+        nextBtn.disabled = currentPage === totalPages;
+        nextBtn.addEventListener('click', () => {
+            if (currentPage < totalPages) { currentPage++; applyFiltersAndRender(); }
+        });
+        paginationControls.appendChild(nextBtn);
+    }
+
     function applyFiltersAndRender() {
         filteredPlayers = getFilteredPlayers();
+        // 更新筛选下拉
         const allGames = new Set();
         playersData.forEach(p => {
             if (p.mainGame) allGames.add(p.mainGame);
@@ -1560,19 +1632,19 @@
                     <td>${escapeHtml(onlineDisplay)}</td>
                     <td><span class="voice-badge">${escapeHtml(voice)}</span></td>
                     <td>
-                        <button class="btn-sm more-btn" data-more-id="${p._key}"><i class="fas fa-chevron-down"></i></button>
-                        <div class="more-info" id="more-${p._key}">${moreInfo}</div>
+                        <button class="btn-sm more-btn" data-more-id="${p.uid}"><i class="fas fa-chevron-down"></i></button>
+                        <div class="more-info" id="more-${p.uid}">${moreInfo}</div>
                     </td>
                 </tr>
             `;
         });
         tableBody.innerHTML = html;
 
-        // 更多信息
+        // 更多信息按钮
         tableBody.querySelectorAll('.more-btn').forEach(btn => {
             btn.addEventListener('click', function() {
-                const key = this.dataset.moreId;
-                const info = document.getElementById(`more-${key}`);
+                const uid = this.dataset.moreId;
+                const info = document.getElementById(`more-${uid}`);
                 if (info) {
                     info.classList.toggle('show');
                     this.classList.toggle('active');
@@ -1587,152 +1659,77 @@
         updateStatsAndRank();
     }
 
-    function renderPagination(totalPages) {
-        paginationControls.innerHTML = '';
-        if (totalPages <= 1) return;
-
-        const prevBtn = document.createElement('button');
-        prevBtn.textContent = '‹';
-        prevBtn.disabled = currentPage === 1;
-        prevBtn.addEventListener('click', () => {
-            if (currentPage > 1) { currentPage--; applyFiltersAndRender(); }
-        });
-        paginationControls.appendChild(prevBtn);
-
-        const maxVisible = 5;
-        let startPage = Math.max(1, currentPage - Math.floor(maxVisible / 2));
-        let endPage = Math.min(totalPages, startPage + maxVisible - 1);
-        if (endPage - startPage + 1 < maxVisible) startPage = Math.max(1, endPage - maxVisible + 1);
-
-        for (let i = startPage; i <= endPage; i++) {
-            const btn = document.createElement('button');
-            btn.textContent = i;
-            if (i === currentPage) btn.classList.add('active');
-            btn.addEventListener('click', () => {
-                currentPage = i;
-                applyFiltersAndRender();
+    // ============================================================
+    // Firebase 数据加载（实时监听）
+    // ============================================================
+    function loadDataFromFirebase() {
+        if (!firebaseReady) return;
+        playersRef.on('value', (snapshot) => {
+            const data = snapshot.val() || {};
+            const playersArray = Object.entries(data).map(([uid, value]) => {
+                return { ...value, uid, username: value.username || '未命名' };
             });
-            paginationControls.appendChild(btn);
-        }
+            playersData = playersArray;
+            applyFiltersAndRender();
 
-        const nextBtn = document.createElement('button');
-        nextBtn.textContent = '›';
-        nextBtn.disabled = currentPage === totalPages;
-        nextBtn.addEventListener('click', () => {
-            if (currentPage < totalPages) { currentPage++; applyFiltersAndRender(); }
+            // 检查当前用户是否已登记
+            if (currentUid && data[currentUid]) {
+                resetUsernameDisplay.textContent = data[currentUid].username || '用户';
+                resetSection.classList.add('show');
+                formCard.style.display = 'none';
+            } else {
+                resetSection.classList.remove('show');
+                formCard.style.display = 'block';
+                if (getCurrentUsername()) {
+                    setCurrentUsername('');
+                }
+            }
         });
-        paginationControls.appendChild(nextBtn);
     }
 
-    function updateStatsAndRank() {
-        const total = playersData.length;
-        totalCount.textContent = total;
-        let m = 0, p = 0, g = 0, d = 0;
-        const gameSet = new Set();
-        playersData.forEach(player => {
-            const level = player.level || '萌新';
-            if (level === '萌新') m++;
-            else if (level === '普通') p++;
-            else if (level === '高手') g++;
-            else if (level === '大手子') d++;
-            if (player.mainGame) gameSet.add(player.mainGame);
-            (player.alsoGames || []).forEach(gm => gameSet.add(gm));
-        });
-        mengxinCount.textContent = m;
-        putongCount.textContent = p;
-        gaoshouCount.textContent = g;
-        dashouziCount.textContent = d;
-        gameCount.textContent = gameSet.size;
-
-        const voteMap = new Map();
-        playersData.forEach(p => {
-            (p.recommendedGames || []).forEach(game => {
-                voteMap.set(game, (voteMap.get(game) || 0) + 1);
+    // ============================================================
+    // 匿名登录
+    // ============================================================
+    function initAuth() {
+        firebase.auth().signInAnonymously()
+            .then((userCredential) => {
+                currentUid = userCredential.user.uid;
+                console.log("匿名登录成功，UID:", currentUid);
+                firebaseReady = true;
+                loadDataFromFirebase();
+                document.getElementById('app').style.display = 'block';
+                showToast('已连接数据库', 'info');
+                const savedUser = getCurrentUsername();
+                if (savedUser && currentUid) {
+                    playersRef.child(currentUid).once('value').then(snapshot => {
+                        if (!snapshot.exists()) {
+                            setCurrentUsername('');
+                            toggleDisplay();
+                        }
+                    });
+                }
+            })
+            .catch((error) => {
+                console.error("匿名登录失败:", error);
+                alert("登录失败，请检查网络或刷新重试");
             });
-        });
-        const sorted = Array.from(voteMap.entries()).sort((a, b) => b[1] - a[1]);
-        rankList.innerHTML = '';
-        if (sorted.length === 0) {
-            rankEmpty.style.display = 'block';
-        } else {
-            rankEmpty.style.display = 'none';
-            sorted.forEach(([game, votes]) => {
-                const div = document.createElement('div');
-                div.className = 'rank-item';
-                div.innerHTML = `<span class="rank-game">${escapeHtml(game)}</span><span class="rank-votes">${votes} 票</span>`;
-                rankList.appendChild(div);
-            });
-        }
     }
 
-    // ---------- 重置表单 ----------
-    function resetFormFields() {
-        form.reset();
-        [mainGameSelect, alsoGameSelect, wantGameSelect, recommendGameSelect].forEach(sel => sel.value = '');
-        [mainManualRow, alsoManualRow, wantManualRow, recommendManualRow].forEach(row => row.classList.remove('show'));
-        [mainPresetRow, alsoPresetRow, wantPresetRow, recommendPresetRow].forEach(row => row.style.display = 'flex');
-        alsoGamesArray = [];
-        renderTags(alsoTagContainer, alsoGamesArray, alsoGamesHidden);
-        wantGamesArray = [];
-        renderTags(wantTagContainer, wantGamesArray, wantGamesHidden);
-        recommendGamesArray = [];
-        renderTags(recommendTagContainer, recommendGamesArray, recommendGamesHidden, 3);
-        updateRecommendHint();
-        setLevel('萌新');
-        expectedLevels = [];
-        renderExpectedLevels();
-        onlineCustomWrap.classList.remove('show');
-        onlineTimeCustom.value = '';
-        maskPlaceholder.classList.remove('hidden');
-        onlineTimeCustom.classList.remove('error');
-    }
-
-    // ---------- 重新登记（删除数据库记录） ----------
-    resetRegistrationBtn.addEventListener('click', function() {
-        const currentUser = getCurrentUsername();
-        if (!currentUser) {
-            showToast('未检测到您的登记信息', 'error');
-            return;
-        }
-        if (!confirm('是否重新登记？这会删除掉你之前登记过的内容。')) return;
-        const userKey = encodeUserKey(currentUser);
-        playersRef.child(userKey).remove().then(() => {
-            localStorage.removeItem(USERNAME_KEY);
-            toggleDisplay();
-            showToast(`已删除您的记录，可以重新登记`, 'success');
-            resetFormFields();
-        }).catch(err => {
-            showToast('删除失败: ' + err.message, 'error');
-        });
-    });
-
-    // ---------- 重置（仅清除本地存储） ----------
-    resetBrowserBtn.addEventListener('click', function() {
-        if (!confirm('确定要清除浏览器中的登记记录吗？这将允许你重新输入新的用户名。你之前的登记数据（如果存在）不会被删除。')) return;
-        localStorage.removeItem(USERNAME_KEY);
-        toggleDisplay();
-        resetFormFields();
-        showToast('已清除本地记录，您可以重新登记。若还是无法登记，请联系管理员@潘安', 'warning');
-    });
-
-    // ---------- 表单提交 ----------
+    // ============================================================
+    // 表单提交
+    // ============================================================
     form.addEventListener('submit', async function(e) {
         e.preventDefault();
         if (isSubmitting) return;
+        if (!currentUid) { showToast('请等待登录完成', 'error'); return; }
         isSubmitting = true;
-
-        if (!firebaseInitialized) {
-            showToast('Firebase 未初始化，请检查配置', 'error');
-            isSubmitting = false;
-            return;
-        }
 
         const username = usernameInput.value.trim();
         if (!username) { showToast('请输入用户名', 'error'); usernameInput.focus(); isSubmitting = false; return; }
 
-        const savedUser = getCurrentUsername();
-        if (savedUser && savedUser !== username) {
-            showToast(`您已登记为「${savedUser}」，请使用该用户名或点击「重置」清除记录`, 'error');
+        const existing = playersData.find(p => p.username === username && p.uid !== currentUid);
+        if (existing) {
+            showToast(`用户名 "${username}" 已被其他用户使用，请换一个`, 'error');
             isSubmitting = false;
             return;
         }
@@ -1743,15 +1740,6 @@
             if (!mainGame) { showToast('请手动输入主要游戏名称', 'error'); mainManual.focus(); isSubmitting = false; return; }
         } else if (!mainGame) {
             showToast('请选择或输入主要游戏', 'error'); mainGameSelect.focus(); isSubmitting = false; return;
-        }
-
-        const userKey = encodeUserKey(username);
-        const userRef = playersRef.child(userKey);
-        const snapshot = await userRef.once('value');
-        if (snapshot.exists()) {
-            showToast(`用户名 "${username}" 已被登记，请勿重复提交`, 'error');
-            isSubmitting = false;
-            return;
         }
 
         const onlineTimeTypeVal = onlineTimeType.value;
@@ -1792,26 +1780,61 @@
             expectedLevels: expectedLevels.slice(),
         };
 
-        userRef.set(data).then(() => {
-            localStorage.setItem(USERNAME_KEY, username);
+        try {
+            await playersRef.child(currentUid).set(data);
+            setCurrentUsername(username);
             showToast(`🎉 ${username} 登记成功`, 'success');
             resetFormFields();
-            toggleDisplay();
-            isSubmitting = false;
-        }).catch(err => {
+            resetUsernameDisplay.textContent = username;
+            resetSection.classList.add('show');
+            formCard.style.display = 'none';
+        } catch (err) {
             showToast('保存失败: ' + err.message, 'error');
-            isSubmitting = false;
+        }
+        isSubmitting = false;
+    });
+
+    // ============================================================
+    // 重新登记（删除自己的数据库记录）
+    // ============================================================
+    resetRegistrationBtn.addEventListener('click', function() {
+        if (!currentUid) { showToast('未登录', 'error'); return; }
+        if (!confirm('是否重新登记？这会删除掉你之前登记过的内容。')) return;
+        playersRef.child(currentUid).remove().then(() => {
+            setCurrentUsername('');
+            resetSection.classList.remove('show');
+            formCard.style.display = 'block';
+            showToast('已删除您的记录，可以重新登记', 'success');
+            resetFormFields();
+        }).catch(err => {
+            showToast('删除失败: ' + err.message, 'error');
         });
     });
 
-    // ---------- 重置按钮 ----------
+    // ============================================================
+    // 重置（仅清除本地存储，不删除数据库）
+    // ============================================================
+    resetBrowserBtn.addEventListener('click', function() {
+        if (!confirm('确定要清除浏览器中的登记记录吗？这将允许你重新输入新的用户名。你之前的登记数据（如果存在）不会被删除。')) return;
+        setCurrentUsername('');
+        resetSection.classList.remove('show');
+        formCard.style.display = 'block';
+        resetFormFields();
+        showToast('已清除本地记录，您可以重新填写。若还是无法登记，请联系管理员@潘安', 'warning');
+    });
+
+    // ============================================================
+    // 重置按钮（表单重置）
+    // ============================================================
     resetBtn.addEventListener('click', function(e) {
         e.preventDefault();
         resetFormFields();
         showToast('已重置', 'info');
     });
 
-    // ---------- 搜索 & 筛选 ----------
+    // ============================================================
+    // 搜索 & 筛选
+    // ============================================================
     searchInput.addEventListener('input', function() { currentPage = 1; applyFiltersAndRender(); });
     filterGame.addEventListener('change', function() { currentPage = 1; applyFiltersAndRender(); });
     filterLevel.addEventListener('change', function() { currentPage = 1; applyFiltersAndRender(); });
@@ -1833,7 +1856,9 @@
         applyFiltersAndRender();
     });
 
-    // ---------- 弹窗 ----------
+    // ============================================================
+    // 弹窗
+    // ============================================================
     if (!sessionStorage.getItem('welcomeShown')) {
         welcomeModal.classList.add('show');
         sessionStorage.setItem('welcomeShown', 'true');
@@ -1847,7 +1872,9 @@
         }
     });
 
-    // ---------- 键盘 ----------
+    // ============================================================
+    // 键盘快捷键
+    // ============================================================
     document.addEventListener('keydown', function(e) {
         if (e.ctrlKey && e.key === 'f') { e.preventDefault(); searchInput.focus(); }
         if (e.key === 'Escape') {
@@ -1857,9 +1884,10 @@
         }
     });
 
-    // ---------- 初始化 ----------
+    // ============================================================
+    // 初始化
+    // ============================================================
     function init() {
-        toggleDisplay();
         setLevel('萌新');
         expectedLevels = [];
         renderExpectedLevels();
@@ -1873,16 +1901,20 @@
         [mainPresetRow, alsoPresetRow, wantPresetRow, recommendPresetRow].forEach(row => row.style.display = 'flex');
         [mainManualRow, alsoManualRow, wantManualRow, recommendManualRow].forEach(row => row.classList.remove('show'));
 
-        loadDataFromFirebase();
+        initAuth();
 
         setTimeout(() => {
-            applyFiltersAndRender();
-        }, 300);
+            if (firebaseReady) applyFiltersAndRender();
+        }, 500);
 
         showToast('👋 登记你的游戏信息，找到恐游搭子吧！', 'info');
     }
 
-    init();
+    if (document.readyState === 'loading') {
+        document.addEventListener('DOMContentLoaded', init);
+    } else {
+        init();
+    }
 </script>
 </body>
 </html>
