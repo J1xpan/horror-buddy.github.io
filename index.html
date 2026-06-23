@@ -1033,7 +1033,7 @@
 
 <script>
     // ============================================================
-    // Firebase 配置（已使用您原有的配置）
+    // Firebase 配置（使用您原有的配置）
     // ============================================================
     const firebaseConfig = {
         apiKey: "AIzaSyDVYlQZHk2H7q6bt6yuaynH9pMorbgsOg4",
@@ -1688,16 +1688,15 @@
     }
 
     // ============================================================
-    // 匿名登录
+    // 匿名登录（带重试逻辑）
     // ============================================================
-    function initAuth() {
-        firebase.auth().signInAnonymously()
+    function attemptAnonymousLogin() {
+        return firebase.auth().signInAnonymously()
             .then((userCredential) => {
                 currentUid = userCredential.user.uid;
                 console.log("匿名登录成功，UID:", currentUid);
                 firebaseReady = true;
                 loadDataFromFirebase();
-                document.getElementById('app').style.display = 'block';
                 showToast('已连接数据库', 'info');
                 const savedUser = getCurrentUsername();
                 if (savedUser && currentUid) {
@@ -1711,7 +1710,38 @@
             })
             .catch((error) => {
                 console.error("匿名登录失败:", error);
-                alert("登录失败，请检查网络或刷新重试");
+                // 显示错误并提示用户操作
+                showToast('登录失败: ' + error.message, 'error');
+                // 创建重试按钮
+                let retryBtn = document.getElementById('retryLoginBtn');
+                if (!retryBtn) {
+                    retryBtn = document.createElement('button');
+                    retryBtn.id = 'retryLoginBtn';
+                    retryBtn.textContent = '🔄 重试登录';
+                    retryBtn.style.cssText = `
+                        position: fixed;
+                        bottom: 20px;
+                        left: 50%;
+                        transform: translateX(-50%);
+                        background: #007aff;
+                        color: #fff;
+                        border: none;
+                        border-radius: 30px;
+                        padding: 12px 28px;
+                        font-size: 1rem;
+                        font-weight: 600;
+                        cursor: pointer;
+                        z-index: 999;
+                        box-shadow: 0 4px 16px rgba(0,122,255,0.4);
+                        font-family: inherit;
+                    `;
+                    retryBtn.addEventListener('click', function() {
+                        this.remove();
+                        showToast('正在重新登录...', 'info');
+                        attemptAnonymousLogin();
+                    });
+                    document.body.appendChild(retryBtn);
+                }
             });
     }
 
@@ -1901,11 +1931,15 @@
         [mainPresetRow, alsoPresetRow, wantPresetRow, recommendPresetRow].forEach(row => row.style.display = 'flex');
         [mainManualRow, alsoManualRow, wantManualRow, recommendManualRow].forEach(row => row.classList.remove('show'));
 
-        initAuth();
+        // 启动登录
+        attemptAnonymousLogin();
 
+        // 如果 5 秒后仍未 ready，显示提示（但登录失败时已有重试按钮）
         setTimeout(() => {
-            if (firebaseReady) applyFiltersAndRender();
-        }, 500);
+            if (!firebaseReady) {
+                showToast('登录较慢，请检查网络或刷新页面', 'warning');
+            }
+        }, 5000);
 
         showToast('👋 登记你的游戏信息，找到恐游搭子吧！', 'info');
     }
